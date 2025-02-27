@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Toolbar, { ToolbarItemProps } from "@/components/Toolbar";
 import Canvas from "@/components/Canvas";
-import { MousePointer, Pencil, Eraser, Trash } from "lucide-react";
+import { Video, VideoRecorder, LayoutGrid } from "lucide-react";
 
 /**
  * 应用主组件
@@ -9,36 +9,51 @@ import { MousePointer, Pencil, Eraser, Trash } from "lucide-react";
  * @returns 应用主界面
  */
 function App() {
-  // 当前选中的工具
-  const [activeTool, setActiveTool] = useState<string>("选择");
+  // 功能状态
+  const [isCapturing, setIsCapturing] = useState<boolean>(false);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+
+  // 处理抓取视频流
+  const handleCaptureVideo = () => {
+    setIsCapturing(!isCapturing);
+    // 这里添加抓取视频流的实际逻辑
+    console.log("抓取视频流", !isCapturing ? "开始" : "停止");
+  };
+
+  // 处理开始录制
+  const handleStartRecording = () => {
+    setIsRecording(!isRecording);
+    // 这里添加开始录制的实际逻辑
+    console.log("录制", !isRecording ? "开始" : "停止");
+  };
+
+  // 处理选择画布尺寸
+  const handleSelectCanvasSize = () => {
+    // 这里添加选择画布尺寸的逻辑
+    console.log("选择画布尺寸");
+    // 可以显示一个尺寸选择对话框或下拉菜单
+  };
 
   // 工具栏项目定义
   const toolbarItems: ToolbarItemProps[] = [
     {
-      icon: <MousePointer size={16} />,
-      label: "选择",
-      onClick: () => setActiveTool("选择"),
-      active: activeTool === "选择",
+      icon: <Video size={18} />,
+      label: "抓取视频流",
+      onClick: handleCaptureVideo,
+      active: isCapturing,
     },
     {
-      icon: <Pencil size={16} />,
-      label: "绘制",
-      onClick: () => setActiveTool("绘制"),
-      active: activeTool === "绘制",
+      icon: <VideoRecorder size={18} />,
+      label: "开始录制",
+      onClick: handleStartRecording,
+      active: isRecording,
+      // 只有在抓取视频流时才能录制
+      disabled: !isCapturing,
     },
     {
-      icon: <Eraser size={16} />,
-      label: "擦除",
-      onClick: () => setActiveTool("擦除"),
-      active: activeTool === "擦除",
-    },
-    {
-      icon: <Trash size={16} />,
-      label: "清空",
-      onClick: () => {
-        // 清空画布的逻辑
-        console.log("清空画布");
-      },
+      icon: <LayoutGrid size={18} />,
+      label: "画布尺寸",
+      onClick: handleSelectCanvasSize,
     },
   ];
 
@@ -54,7 +69,7 @@ function App() {
       
       {/* 下部分：Canvas */}
       <div className="flex-1">
-        <Canvas />
+        <Canvas isCapturing={isCapturing} isRecording={isRecording} />
       </div>
     </div>
   );

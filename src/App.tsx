@@ -15,6 +15,12 @@ function App() {
 
   // 处理抓取视频流
   const handleCaptureVideo = () => {
+    // 如果正在录制，不允许切换捕获状态
+    if (isRecording) {
+      console.warn("请先停止录制再切换视频流状态");
+      return;
+    }
+    
     setIsCapturing(!isCapturing);
     // 这里添加抓取视频流的实际逻辑
     console.log("抓取视频流", !isCapturing ? "开始" : "停止");
@@ -22,9 +28,13 @@ function App() {
 
   // 处理开始录制
   const handleStartRecording = () => {
-    setIsRecording(!isRecording);
-    // 这里添加开始录制的实际逻辑
-    console.log("录制", !isRecording ? "开始" : "停止");
+    // 只有在已经成功捕获视频流的情况下才能录制
+    if (isCapturing) {
+      setIsRecording(!isRecording);
+      console.log("录制", !isRecording ? "开始" : "停止");
+    } else {
+      console.warn("请先抓取视频流再开始录制");
+    }
   };
 
   // 处理选择画布尺寸
@@ -41,6 +51,8 @@ function App() {
       label: "抓取视频流",
       onClick: handleCaptureVideo,
       active: isCapturing,
+      // 如果正在录制，禁用视频流切换
+      disabled: isRecording,
     },
     {
       icon: <Camera size={18} />,

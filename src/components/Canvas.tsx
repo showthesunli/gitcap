@@ -58,12 +58,13 @@ const Canvas: FC<CanvasProps> = ({ isCapturing = false, isRecording = false }) =
   // 处理捕获状态变化
   useEffect(() => {
     const canvas = fabricCanvasRef.current;
-    if (canvas && isCapturing) {
+    // 只在首次设置 isCapturing 为 true 且未在录制状态时执行
+    if (canvas && isCapturing && !isRecording) {
       handleScreenCaptureClick(canvas).catch((error: Error) => {
         console.error("视频捕获错误:", error);
       });
     }
-  }, [isCapturing]);
+  }, [isCapturing, isRecording]); // 添加 isRecording 作为依赖项
 
   // 处理录制状态变化
   useEffect(() => {

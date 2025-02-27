@@ -1,4 +1,8 @@
-import { FC } from "react";
+import { FC, useEffect, useRef } from "react";
+import { Canvas as FabricCanvas } from "fabric";
+import { initializeCanvas } from "@/lib/business/canvas";
+import { createWheelHandler, onCanvasZoom, onSystemEvent } from "@/lib/business/event-handlers";
+import { handleScreenCaptureClick, exportToGIF } from "@/lib/business/screen-capture";
 
 /**
  * Canvas组件属性定义
@@ -15,6 +19,60 @@ type CanvasProps = {
  * @returns Canvas渲染元素
  */
 const Canvas: FC<CanvasProps> = ({ isCapturing = false, isRecording = false }) => {
+  // 使用ref存储fabric canvas实例
+  const fabricCanvasRef = useRef<FabricCanvas | null>(null);
+  
+  // 初始化fabric canvas
+  useEffect(() => {
+    // 确保只初始化一次
+    if (!fabricCanvasRef.current) {
+      // 初始化fabric canvas
+      fabricCanvasRef.current = initializeCanvas();
+      const canvas = fabricCanvasRef.current;
+      
+      // 绑定滚轮缩放事件
+      canvas.on("mouse:wheel", createWheelHandler(canvas));
+
+      // 监听画布缩放事件
+      const unsubscribeZoom = onCanvasZoom((data) => {
+        console.log(`画布缩放到级别: ${data.details?.zoomLevel}`);
+      });
+
+      // 监听系统事件
+      const unsubscribeSystem = onSystemEvent((data) => {
+        if (data.level === "error") {
+          console.error(`错误 (${data.code}): ${data.message}`);
+        }
+      });
+
+      // 组件卸载时清理资源
+      return () => {
+        unsubscribeZoom();
+        unsubscribeSystem();
+        fabricCanvasRef.current?.dispose();
+        fabricCanvasRef.current = null;
+      };
+    }
+  }, []);
+
+  // 处理捕获状态变化
+  useEffect(() => {
+    const canvas = fabricCanvasRef.current;
+    if (canvas && isCapturing) {
+      handleScreenCaptureClick(canvas).catch(error => {
+        console.error("视频捕获错误:", error);
+      });
+    }
+  }, [isCapturing]);
+
+  // 处理录制状态变化
+  useEffect(() => {
+    const canvas = fabricCanvasRef.current;
+    if (canvas && isRecording) {
+      exportToGIF(canvas);
+    }
+  }, [isRecording]);
+
   return (
     <div className="h-full w-full flex justify-center items-center p-6">
       <div className="relative">

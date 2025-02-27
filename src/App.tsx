@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Toolbar, { ToolbarItemProps } from "@/components/Toolbar";
 import Canvas from "@/components/Canvas";
-import { Video, VideoRecorder, LayoutGrid } from "lucide-react";
+import { Video, Camera, LayoutGrid } from "lucide-react";
 
 /**
  * 应用主组件
@@ -43,7 +43,7 @@ function App() {
       active: isCapturing,
     },
     {
-      icon: <VideoRecorder size={18} />,
+      icon: <Camera size={18} />,
       label: "开始录制",
       onClick: handleStartRecording,
       active: isRecording,
@@ -66,7 +66,7 @@ function App() {
           className="rounded-full shadow-lg bg-white/90 backdrop-blur-sm border border-gray-100"
         />
       </div>
-      
+
       {/* 下部分：Canvas */}
       <div className="flex-1">
         <Canvas isCapturing={isCapturing} isRecording={isRecording} />

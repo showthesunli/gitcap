@@ -59,7 +59,7 @@ const Canvas: FC<CanvasProps> = ({ isCapturing = false, isRecording = false }) =
   useEffect(() => {
     const canvas = fabricCanvasRef.current;
     if (canvas && isCapturing) {
-      handleScreenCaptureClick(canvas).catch(error => {
+      handleScreenCaptureClick(canvas).catch((error: Error) => {
         console.error("视频捕获错误:", error);
       });
     }

@@ -37,25 +37,29 @@ function App() {
   ];
 
   return (
-    <div className="relative h-screen">
-      {/* Canvas 区域占据整个屏幕 */}
-      <div className="h-full bg-white p-6">
-        <div className="w-full h-full flex justify-center items-center">
+    <div className="relative h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+      {/* 工具栏定位在顶部中央 */}
+      <div className="absolute left-1/2 top-4 transform -translate-x-1/2 z-10">
+        <Toolbar 
+          items={toolbarItems} 
+          className="rounded-full shadow-lg bg-white/90 backdrop-blur-sm border border-gray-100"
+        />
+      </div>
+
+      {/* Canvas 区域 */}
+      <div className="h-full w-full flex justify-center items-center p-6">
+        <div className="relative w-[1080px] h-[720px] rounded-xl overflow-hidden">
+          {/* 背景效果 */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-xl"></div>
+          
+          {/* Canvas 元素 */}
           <canvas
             width="1080"
             height="720"
-            className="border-2 border-slate-200 rounded-lg shadow-sm"
+            className="relative z-0 w-full h-full rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.05)] border border-gray-100"
             id="c"
           ></canvas>
         </div>
-      </div>
-
-      {/* 工具栏定位在屏幕中央 */}
-      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <Toolbar 
-          items={toolbarItems} 
-          className="rounded-lg shadow-md bg-white border border-gray-200"
-        />
       </div>
     </div>
   );

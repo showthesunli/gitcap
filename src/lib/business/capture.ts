@@ -82,8 +82,7 @@ export async function createScreenCaptureVideo(
 
     return video;
   } catch (error) {
-    // 捕捉失败时移除视频引用
-    video.remove();
+    // 不再尝试从DOM中移除视频元素
     throw error;
   }
 }

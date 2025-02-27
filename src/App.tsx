@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Toolbar, { ToolbarItemProps } from "@/components/Toolbar";
-import { Cursor, Pencil, Eraser, Trash } from "lucide-react";
+import { MousePointer, Pencil, Eraser, Trash } from "lucide-react";
 
 function App() {
   // 当前选中的工具
@@ -9,7 +9,7 @@ function App() {
   // 工具栏项目定义
   const toolbarItems: ToolbarItemProps[] = [
     {
-      icon: <Cursor size={16} />,
+      icon: <MousePointer size={16} />,
       label: "选择",
       onClick: () => setActiveTool("选择"),
       active: activeTool === "选择",
@@ -40,10 +40,17 @@ function App() {
     <div className="flex flex-col h-screen">
       {/* 顶部工具栏 */}
       <Toolbar items={toolbarItems} />
-      
+
       {/* 下方 Canvas 区域 */}
-      <div className="flex-grow overflow-hidden">
-        <canvas className="w-full h-full"></canvas>
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="w-full flex justify-center">
+          <canvas
+            width="1080"
+            height="720"
+            className="border-2 border-slate-200 rounded-lg shadow-sm"
+            id="c"
+          ></canvas>
+        </div>
       </div>
     </div>
   );

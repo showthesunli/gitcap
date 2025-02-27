@@ -84,4 +84,4 @@ const Toolbar = ({ items, className }: ToolbarProps) => {
 };
 
 export default Toolbar;
-export type { ToolbarProps, ToolbarItemProps };
+export type { ToolbarProps };

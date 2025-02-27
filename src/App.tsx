@@ -1,7 +1,13 @@
 import { useState } from "react";
 import Toolbar, { ToolbarItemProps } from "@/components/Toolbar";
+import Canvas from "@/components/Canvas";
 import { MousePointer, Pencil, Eraser, Trash } from "lucide-react";
 
+/**
+ * 应用主组件
+ * @remarks 包含工具栏和画布两个主要部分
+ * @returns 应用主界面
+ */
 function App() {
   // 当前选中的工具
   const [activeTool, setActiveTool] = useState<string>("选择");
@@ -37,27 +43,18 @@ function App() {
   ];
 
   return (
-    <div className="relative h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-      {/* 工具栏定位在顶部中央 */}
-      <div className="absolute left-1/2 top-4 transform -translate-x-1/2 z-10">
+    <div className="flex flex-col h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+      {/* 上部分：工具栏 */}
+      <div className="flex justify-center p-4">
         <Toolbar
           items={toolbarItems}
           className="rounded-full shadow-lg bg-white/90 backdrop-blur-sm border border-gray-100"
         />
       </div>
-
-      {/* Canvas 区域 */}
-      <div className="h-full w-full flex justify-center items-center p-6">
-        {/* Canvas 元素 */}
-        <canvas
-          width="1080"
-          height="720"
-          className="relative z-0 w-full h-full rounded-xl border-2 border-slate-300/50 shadow-[0_10px_50px_rgba(0,0,0,0.08)] backdrop-blur-sm"
-          id="c"
-          style={{
-            boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.2)",
-          }}
-        ></canvas>
+      
+      {/* 下部分：Canvas */}
+      <div className="flex-1">
+        <Canvas />
       </div>
     </div>
   );

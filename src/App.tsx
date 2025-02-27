@@ -37,13 +37,10 @@ function App() {
   ];
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* 顶部工具栏 */}
-      <Toolbar items={toolbarItems} />
-
-      {/* 下方 Canvas 区域 */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <div className="w-full flex justify-center">
+    <div className="relative h-screen">
+      {/* Canvas 区域占据整个屏幕 */}
+      <div className="h-full bg-white p-6">
+        <div className="w-full h-full flex justify-center items-center">
           <canvas
             width="1080"
             height="720"
@@ -51,6 +48,14 @@ function App() {
             id="c"
           ></canvas>
         </div>
+      </div>
+
+      {/* 工具栏定位在屏幕中央 */}
+      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <Toolbar 
+          items={toolbarItems} 
+          className="rounded-lg shadow-md bg-white border border-gray-200"
+        />
       </div>
     </div>
   );

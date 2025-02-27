@@ -50,12 +50,12 @@ const ToolbarItem = ({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex items-center gap-1",
+        "flex items-center justify-center p-2",
         active && "bg-primary text-primary-foreground"
       )}
+      title={label}
     >
       {icon}
-      <span>{label}</span>
     </Button>
   );
 };
@@ -70,11 +70,11 @@ const Toolbar = ({ items, className }: ToolbarProps) => {
   return (
     <div
       className={cn(
-        "bg-gray-100 border-b border-gray-200 p-2 flex items-center",
+        "p-1 flex items-center",
         className
       )}
     >
-      <div className="flex space-x-2">
+      <div className="flex space-x-1">
         {items.map((item, index) => (
           <ToolbarItem key={index} {...item} />
         ))}

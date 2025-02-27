@@ -11,7 +11,7 @@ const Canvas: FC = () => {
       <canvas
         width="1080"
         height="720"
-        className="relative z-0 w-full h-full rounded-xl border-2 border-slate-300/50 shadow-[0_10px_50px_rgba(0,0,0,0.08)] backdrop-blur-sm"
+        className="relative z-0 rounded-xl border-2 border-slate-300/50 shadow-[0_10px_50px_rgba(0,0,0,0.08)] backdrop-blur-sm"
         id="c"
         style={{
           boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.2)",

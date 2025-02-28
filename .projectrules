@@ -53,6 +53,33 @@
             "bad": "使用旧版本Tailwind或其他CSS框架",
             "good": "使用Tailwind v4的新特性"
           }
+        },
+        {
+          "name": "use-zustand",
+          "description": "使用Zustand作为状态管理解决方案",
+          "level": "error",
+          "check": {
+            "require": ["zustand导入语句", "zustand store使用示例"],
+            "no": [
+              "redux",
+              "mobx",
+              "recoil",
+              "zustand/vanilla",
+              "zustand.context",
+              "zustand/middleware"
+            ]
+          },
+          "example": {
+            "bad": [
+              "import { createSlice } from '@reduxjs/toolkit'",
+              "import { atom } from 'jotai'",
+              "import { observable } from 'mobx'"
+            ],
+            "good": [
+              "import { create } from 'zustand'",
+              "const useStore = create((set) => ({...}))"
+            ]
+          }
         }
       ]
     }

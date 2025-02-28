@@ -1,3 +1,5 @@
+import React from "react";
+
 interface MainLayoutProps {
   children: React.ReactNode;
 }
@@ -8,9 +10,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       <header className="border-b shadow-sm">
         {React.Children.toArray(children)[0]}
       </header>
-      <main className="flex-1">
-        {React.Children.toArray(children)[1]}
-      </main>
+      <main className="flex-1">{React.Children.toArray(children)[1]}</main>
     </div>
   );
 }

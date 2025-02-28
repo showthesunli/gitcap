@@ -4,10 +4,10 @@ import { CanvasContainer } from "@/components/canvas/CanvasContainer";
 
 function App() {
   return (
-    <MainLayout
-      toolbar={<EditorToolbar />}
-      canvas={<CanvasContainer />}
-    />
+    <MainLayout>
+      <EditorToolbar />
+      <CanvasContainer />
+    </MainLayout>
   );
 }
 

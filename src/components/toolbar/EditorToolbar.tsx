@@ -1,4 +1,4 @@
-import { Video, Camera, AspectRatio } from "lucide-react";
+import { Video, Camera, Ruler } from "lucide-react";
 import { ToolButton } from "./ToolButton";
 
 // 预设画布尺寸配置
@@ -15,7 +15,7 @@ export function EditorToolbar() {
         <ToolButton icon={Video} text="视频导入" />
         <ToolButton icon={Camera} text="屏幕捕捉" />
         <ToolButton 
-          icon={AspectRatio} 
+          icon={Ruler} 
           text={`画布尺寸 (${CANVAS_PRESETS.default.width}×${CANVAS_PRESETS.default.height})`} 
         />
       </nav>

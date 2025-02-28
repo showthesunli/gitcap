@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Stage, Layer, Rect } from "react-konva";
 import { cn } from "@/lib/utils";
 
 interface CanvasContainerProps {
@@ -7,35 +8,42 @@ interface CanvasContainerProps {
 }
 
 export function CanvasContainer({ width, height }: CanvasContainerProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const stageRef = useRef<any>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    canvas.width = width;
-    canvas.height = height;
-
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, width, height);
+    if (stageRef.current) {
+      const stage = stageRef.current;
+      const layer = stage.getLayers()[0];
+      
+      layer.destroyChildren();
+      layer.add(
+        new Rect({
+          width,
+          height,
+          fill: "#ffffff"
+        })
+      );
+      layer.draw();
+    }
   }, [width, height]);
 
   return (
     <div className="flex-1 bg-card flex items-center justify-center">
-      <canvas
-        ref={canvasRef}
+      <Stage
+        ref={stageRef}
+        width={width}
+        height={height}
         style={{
           width: `${width}px`,
-          height: `${height}px`,
+          height: `${height}px`
         }}
         className={cn(
           "border-2 border-dashed border-muted rounded-lg",
           "transition-[border-color] duration-300 hover:border-primary/50"
         )}
-      />
+      >
+        <Layer />
+      </Stage>
     </div>
   );
 }

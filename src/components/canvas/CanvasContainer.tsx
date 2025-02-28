@@ -24,7 +24,7 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
   }, [width, height]);
 
   return (
-    <div className="flex-1 relative bg-card">
+    <div className="flex-1 bg-card flex items-center justify-center">
       <canvas
         ref={canvasRef}
         style={{
@@ -32,7 +32,6 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
           height: `${height}px`,
         }}
         className={cn(
-          "absolute inset-0",
           "border-2 border-dashed border-muted rounded-lg",
           "transition-[border-color] duration-300 hover:border-primary/50"
         )}

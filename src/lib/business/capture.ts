@@ -92,7 +92,7 @@ export function createVideoElementFromStream(
   stream: MediaStream,
   options: VideoElementOptions = {}
 ): HTMLVideoElement {
-  if (!stream || !(stream instanceof MediaStream)) {
+  if (!stream || !(stream instanceof MediaStream) {
     throw new ScreenCaptureError("invalid-input", "无效的媒体流输入", {
       cause: "createVideoElementFromStream 需要有效的 MediaStream 对象",
     });
@@ -132,4 +132,69 @@ export function createVideoElementFromStream(
   }
 
   return video;
+}
+
+interface CaptureAndCreateOptions extends VideoElementOptions {
+  /**
+   * 捕获失败时的回调
+   * @param error 捕获错误对象
+   */
+  onError?: (error: ScreenCaptureError) => void;
+  /**
+   * 视频元素准备就绪时的回调
+   * @param video 已配置的视频元素
+   */
+  onReady?: (video: HTMLVideoElement) => void;
+  /**
+   * 用户停止共享时的回调
+   */
+  onEnded?: () => void;
+}
+
+export function captureAndCreateVideo(
+  options: CaptureAndCreateOptions = {}
+): {
+  promise: Promise<HTMLVideoElement>;
+  video?: HTMLVideoElement;
+  cleanup: () => void;
+} {
+  let stream: MediaStream | null = null;
+  let video: HTMLVideoElement | null = null;
+  
+  const cleanup = () => {
+    video?.remove();
+    stream?.getTracks().forEach(track => track.stop());
+    video = null;
+    stream = null;
+  };
+
+  const promise = new Promise<HTMLVideoElement>(async (resolve, reject) => {
+    try {
+      // 1. 获取屏幕流
+      stream = await captureScreenStream();
+      
+      // 2. 创建视频元素
+      video = createVideoElementFromStream(stream, options);
+      
+      // 3. 绑定生命周期事件
+      stream.getVideoTracks()[0].addEventListener('ended', () => {
+        options.onEnded?.();
+        cleanup();
+      });
+
+      video.addEventListener('loadeddata', () => {
+        options.onReady?.(video!);
+        resolve(video!);
+      });
+
+    } catch (error) {
+      cleanup();
+      if (error instanceof ScreenCaptureError) {
+        options.onError?.(error);
+      }
+      reject(error);
+    }
+  });
+
+  return { promise, video: video || undefined, cleanup };
 }

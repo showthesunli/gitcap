@@ -1,0 +1,2 @@
+pnpm add @radix-ui/react-hover-card
+npx shadcn-ui@latest add hover-card

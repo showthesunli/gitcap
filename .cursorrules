@@ -61,24 +61,6 @@
             "bad": "console.log('Error occurred'); alert('Save failed')",
             "good": "console.log('发生错误'); alert('保存失败')"
           }
-        },
-        {
-          "name": "use-fabric-fabricimage",
-          "description": "必须使用新版FabricImage代替旧版Image类",
-          "level": "error",
-          "check": {
-            "no": [
-              "fabric.Image"
-            ],
-            "recommended": [
-              "fabric.FabricImage"
-            ],
-            "note": "自fabric 6.x版本起，Image类已重构为FabricImage导出"
-          },
-          "example": {
-            "bad": "new fabric.Image(element, options)",
-            "good": "new fabric.FabricImage(element, options)"
-          }
         }
       ]
     },

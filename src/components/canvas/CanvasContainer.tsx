@@ -13,15 +13,14 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     canvas.width = width;
     canvas.height = height;
-    
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, width, height);
 
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
   }, [width, height]);
 
   return (
@@ -30,7 +29,7 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
         ref={canvasRef}
         style={{
           width: `${width}px`,
-          height: `${height}px`
+          height: `${height}px`,
         }}
         className={cn(
           "absolute inset-0",

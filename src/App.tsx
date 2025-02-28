@@ -6,7 +6,7 @@ function App() {
   return (
     <MainLayout>
       <EditorToolbar />
-      <CanvasContainer />
+      <CanvasContainer width={1080} height={720} />
     </MainLayout>
   );
 }

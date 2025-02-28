@@ -14,7 +14,7 @@ class ScreenCaptureError extends Error {
     message: string,
     options?: { cause?: unknown }
   ) {
-    super(message, options);
+    super(message);
     this.name = "ScreenCaptureError";
     this.type = type;
     this.cause = options?.cause;
@@ -23,7 +23,7 @@ class ScreenCaptureError extends Error {
 }
 
 interface CaptureConfig {
-  video?: MediaTrackConstraints;
+  video?: MediaTrackConstraints | boolean;
   audio?: boolean;
 }
 
@@ -42,13 +42,13 @@ export async function captureScreenStream(
 
     const [videoTrack] = stream.getVideoTracks();
     if (!videoTrack) {
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
       throw new ScreenCaptureError("no-video-track", "未捕获到视频轨道");
     }
 
     videoTrack.onended = () => {
       console.log("屏幕共享已停止");
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
     };
 
     return stream;
@@ -97,7 +97,7 @@ export async function createVideoElement(
     autoplay = true,
     controls = false,
     muted = true,
-    container
+    container,
   } = options;
 
   try {
@@ -108,16 +108,17 @@ export async function createVideoElement(
 
     await new Promise<void>((resolve, reject) => {
       video.onloadedmetadata = () => resolve();
-      video.onerror = () => 
+      video.onerror = () =>
         reject(new ScreenCaptureError("unknown", "视频初始化失败"));
       video.play().catch(reject);
     });
 
     if (container) {
-      const parent = typeof container === "string" 
-        ? document.querySelector(container)
-        : container;
-      
+      const parent =
+        typeof container === "string"
+          ? document.querySelector(container)
+          : container;
+
       if (!parent) {
         console.warn("未找到容器元素");
       } else {
@@ -128,8 +129,8 @@ export async function createVideoElement(
     return video;
   } catch (error) {
     video.remove();
-    stream.getTracks().forEach(track => track.stop());
-    throw error instanceof ScreenCaptureError 
+    stream.getTracks().forEach((track) => track.stop());
+    throw error instanceof ScreenCaptureError
       ? error
       : new ScreenCaptureError("unknown", "视频元素创建失败", { cause: error });
   }
@@ -148,7 +149,7 @@ export async function startScreenCapture(
     const stop = () => {
       video.pause();
       video.remove();
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
     };
 
     return { video, stop };

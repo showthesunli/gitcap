@@ -5,6 +5,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { useState } from "react";
 
 const CANVAS_PRESETS = {
   default: { width: 1080, height: 720 },
@@ -18,15 +19,26 @@ interface EditorToolbarProps {
 }
 
 export function EditorToolbar({ currentSize, onCanvasSizeChange }: EditorToolbarProps) {
+  const [isCapturing, setIsCapturing] = useState(false);
+  
   const handlePresetSelect = (preset: keyof typeof CANVAS_PRESETS) => {
     onCanvasSizeChange(CANVAS_PRESETS[preset]);
+  };
+
+  const handleScreenCapture = () => {
+    setIsCapturing(!isCapturing);
   };
 
   return (
     <div className="flex justify-center p-3 bg-background border-b shadow-sm">
       <nav className="flex gap-3">
         <ToolButton icon={Video} text="视频导入" />
-        <ToolButton icon={Camera} text="屏幕捕捉" />
+        <ToolButton 
+          icon={Camera}
+          text={isCapturing ? "停止捕捉" : "屏幕捕捉"}
+          variant={isCapturing ? "destructive" : "outline"}
+          onClick={handleScreenCapture}
+        />
         <HoverCard openDelay={100} closeDelay={200}>
           <HoverCardTrigger>
             <ToolButton 

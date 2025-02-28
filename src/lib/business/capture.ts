@@ -1,9 +1,4 @@
-export async function captureScreenStream(
-  options: MediaStreamConstraints = {
-    video: { frameRate: 30, width: 1920, height: 1080 },
-    audio: false
-  }
-): Promise<MediaStream> {
+export async function captureScreenStream(): Promise<MediaStream> {
   // 检查浏览器支持性
   if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
     throw new Error("当前浏览器不支持屏幕共享功能");
@@ -11,13 +6,8 @@ export async function captureScreenStream(
 
   try {
     const stream = await navigator.mediaDevices.getDisplayMedia({
-      video: {
-        frameRate: options.video?.frameRate || 30,
-        width: options.video?.width || 1920,
-        height: options.video?.height || 1080,
-        displaySurface: "monitor" // 可选参数：'monitor' | 'window' | 'browser'
-      },
-      audio: options.audio || false
+      video: true,
+      audio: false,
     });
 
     // 处理用户取消共享的情况
@@ -29,7 +19,7 @@ export async function captureScreenStream(
     return stream;
   } catch (error) {
     let errorMessage = "屏幕捕获失败";
-    
+
     if (error instanceof DOMException) {
       switch (error.name) {
         case "NotAllowedError":
@@ -43,7 +33,7 @@ export async function captureScreenStream(
           break;
       }
     }
-    
+
     throw new Error(errorMessage);
   }
 }

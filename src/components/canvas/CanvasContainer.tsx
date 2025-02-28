@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { Stage, Layer, Rect } from "react-konva";
 import { cn } from "@/lib/utils";
 
@@ -8,29 +7,9 @@ interface CanvasContainerProps {
 }
 
 export function CanvasContainer({ width, height }: CanvasContainerProps) {
-  const stageRef = useRef<any>(null);
-
-  useEffect(() => {
-    if (stageRef.current) {
-      const stage = stageRef.current;
-      const layer = stage.getLayers()[0];
-      
-      layer.destroyChildren();
-      layer.add(
-        new Rect({
-          width,
-          height,
-          fill: "#ffffff"
-        })
-      );
-      layer.draw();
-    }
-  }, [width, height]);
-
   return (
     <div className="flex-1 bg-card flex items-center justify-center">
       <Stage
-        ref={stageRef}
         width={width}
         height={height}
         style={{
@@ -42,7 +21,13 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
           "transition-[border-color] duration-300 hover:border-primary/50"
         )}
       >
-        <Layer />
+        <Layer>
+          <Rect 
+            width={width}
+            height={height}
+            fill="#ffffff"
+          />
+        </Layer>
       </Stage>
     </div>
   );

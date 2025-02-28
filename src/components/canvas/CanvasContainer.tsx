@@ -1,4 +1,4 @@
-import { Stage, Layer, Rect } from "react-konva";
+import { Stage, Layer } from "react-konva";
 import { cn } from "@/lib/utils";
 
 interface CanvasContainerProps {
@@ -14,20 +14,14 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
         height={height}
         style={{
           width: `${width}px`,
-          height: `${height}px`
+          height: `${height}px`,
         }}
         className={cn(
           "border-2 border-dashed border-muted rounded-lg",
           "transition-[border-color] duration-300 hover:border-primary/50"
         )}
       >
-        <Layer>
-          <Rect 
-            width={width}
-            height={height}
-            fill="#ffffff"
-          />
-        </Layer>
+        <Layer></Layer>
       </Stage>
     </div>
   );

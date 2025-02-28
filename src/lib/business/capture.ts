@@ -7,7 +7,7 @@ class ScreenCaptureError extends Error {
     message: string,
     options?: { cause?: unknown }
   ) {
-    super(message, options);
+    super(message);
     this.name = 'ScreenCaptureError';
     this.type = type;
     this.cause = options?.cause;

@@ -1,41 +1,39 @@
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
-export function CanvasContainer() {
+interface CanvasContainerProps {
+  width: number;
+  height: number;
+}
+
+export function CanvasContainer({ width, height }: CanvasContainerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
+    if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const handleResize = () => {
-      canvas.width = container.offsetWidth;
-      canvas.height = container.offsetHeight;
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    };
+    canvas.width = width;
+    canvas.height = height;
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
 
-    const resizeObserver = new ResizeObserver(handleResize);
-    resizeObserver.observe(container);
-    handleResize();
-
-    return () => {
-      resizeObserver.disconnect();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    };
-  }, []);
+  }, [width, height]);
 
   return (
-    <div ref={containerRef} className="flex-1 relative bg-card">
+    <div className="flex-1 relative bg-card">
       <canvas
         ref={canvasRef}
+        style={{
+          width: `${width}px`,
+          height: `${height}px`
+        }}
         className={cn(
-          "absolute inset-0 w-full h-full",
+          "absolute inset-0",
           "border-2 border-dashed border-muted rounded-lg",
           "transition-[border-color] duration-300 hover:border-primary/50"
         )}

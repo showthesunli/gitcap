@@ -65,7 +65,7 @@ export const recordCanvasToGif = (
   let isRendering = false;
   let resolvePromise: (blob: Blob) => void;
   let rejectPromise: (error: Error) => void;
-  let animationTimeoutId: number | null = null;
+  let animationFrameId: number | null = null;
   
   // 创建结果Promise
   const resultPromise = new Promise<Blob>((resolve, reject) => {
@@ -79,7 +79,7 @@ export const recordCanvasToGif = (
     quality,
     width,
     height,
-    workerScript: new URL("gif.js/dist/gif.worker.js", import.meta.url).href,
+    workerScript: new URL('./gif.worker.js', import.meta.url).href,
   });
 
   // 监听GIF完成事件
@@ -94,22 +94,36 @@ export const recordCanvasToGif = (
     });
   }
 
-  // 帧捕获函数
-  const captureFrame = () => {
+  // 上次捕获时间
+  let lastCaptureTime = 0;
+  
+  // 帧捕获函数 - 使用requestAnimationFrame实现更平滑的帧捕获
+  const captureFrame = (timestamp: number) => {
     if (stopped || isRendering) {
       return;
     }
 
-    // 添加当前canvas帧到GIF
-    gif.addFrame(canvas, { copy: true, delay: frameDelay });
-    framesProcessed++;
+    // 计算自上次捕获以来的时间
+    if (!lastCaptureTime) lastCaptureTime = timestamp;
+    const elapsed = timestamp - lastCaptureTime;
+
+    // 如果经过了足够的时间，捕获一帧
+    if (elapsed >= frameDelay) {
+      // 添加当前canvas帧到GIF
+      gif.addFrame(canvas, { copy: true, delay: frameDelay });
+      framesProcessed++;
+      console.log(`已捕获第${framesProcessed}帧`);
+      
+      // 更新上次捕获时间
+      lastCaptureTime = timestamp;
+    }
 
     // 调度下一帧捕获
-    animationTimeoutId = window.setTimeout(captureFrame, frameDelay) as unknown as number;
+    animationFrameId = requestAnimationFrame(captureFrame);
   };
 
   // 开始捕获
-  captureFrame();
+  animationFrameId = requestAnimationFrame(captureFrame);
 
   return {
     // 停止录制并获取结果
@@ -121,8 +135,8 @@ export const recordCanvasToGif = (
       stopped = true;
       isRendering = true;
       
-      if (animationTimeoutId) {
-        clearTimeout(animationTimeoutId);
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
       }
       
       // 如果没有捕获任何帧，返回错误
@@ -130,6 +144,8 @@ export const recordCanvasToGif = (
         rejectPromise(new Error("未捕获任何帧"));
         return resultPromise;
       }
+      
+      console.log(`GIF录制完成，共捕获${framesProcessed}帧`);
       
       // 开始渲染GIF
       gif.render();
@@ -139,8 +155,8 @@ export const recordCanvasToGif = (
     // 中止录制
     abort: () => {
       stopped = true;
-      if (animationTimeoutId) {
-        clearTimeout(animationTimeoutId);
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
       }
       rejectPromise(new Error("GIF录制已中止"));
     }

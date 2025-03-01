@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { ComponentType } from "react";
 
 interface ToolButtonProps {
@@ -10,12 +9,12 @@ interface ToolButtonProps {
   disabled?: boolean;
 }
 
-export function ToolButton({ 
-  icon: Icon, 
-  text, 
+export function ToolButton({
+  icon: Icon,
+  text,
   variant = "outline",
   onClick,
-  disabled
+  disabled,
 }: ToolButtonProps) {
   return (
     <Button

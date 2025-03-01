@@ -1,0 +1,87 @@
+{
+  "categories": [
+    {
+      "name": "技术栈规范",
+      "rules": [
+        {
+          "name": "use-vite",
+          "description": "使用Vite作为前端构建工具",
+          "level": "error",
+          "check": {
+            "require": ["vite.config.ts"],
+            "no": ["webpack.config.js", "rollup.config.js"]
+          },
+          "example": {
+            "bad": "使用webpack或其他构建工具",
+            "good": "import { defineConfig } from 'vite'"
+          }
+        },
+        {
+          "name": "use-pnpm",
+          "description": "使用pnpm作为包管理器",
+          "level": "error",
+          "check": {
+            "require": ["pnpm-lock.yaml"],
+            "no": ["package-lock.json", "yarn.lock"]
+          },
+          "example": {
+            "bad": "使用npm install或yarn add安装依赖",
+            "good": "使用pnpm add安装依赖"
+          }
+        },
+        {
+          "name": "use-shadcn",
+          "description": "使用shadcn作为UI组件库",
+          "level": "warning",
+          "check": {
+            "recommended": ["shadcn组件导入"]
+          },
+          "example": {
+            "bad": "从其他UI库导入组件",
+            "good": "从shadcn组件库导入并自定义组件"
+          }
+        },
+        {
+          "name": "use-tailwind-v4",
+          "description": "使用Tailwind CSS v4最新版本",
+          "level": "warning",
+          "check": {
+            "require": ["tailwind.config.js"],
+            "version": "^4.0.0"
+          },
+          "example": {
+            "bad": "使用旧版本Tailwind或其他CSS框架",
+            "good": "使用Tailwind v4的新特性"
+          }
+        },
+        {
+          "name": "use-zustand",
+          "description": "使用Zustand作为状态管理解决方案",
+          "level": "error",
+          "check": {
+            "require": ["zustand导入语句", "zustand store使用示例"],
+            "no": [
+              "redux",
+              "mobx",
+              "recoil",
+              "zustand/vanilla",
+              "zustand.context",
+              "zustand/middleware"
+            ]
+          },
+          "example": {
+            "bad": [
+              "import { createSlice } from '@reduxjs/toolkit'",
+              "import { atom } from 'jotai'",
+              "import { observable } from 'mobx'"
+            ],
+            "good": [
+              "import { create } from 'zustand'",
+              "const useStore = create((set) => ({...}))"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

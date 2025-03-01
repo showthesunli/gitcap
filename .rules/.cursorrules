@@ -1,0 +1,96 @@
+{
+  "categories": [
+    {
+      "name": "Functional Programming Style",
+      "rules": [
+        {
+          "name": "use-functional-style",
+          "description": "禁止使用类/OOP模式，使用函数式编程风格",
+          "level": "error",
+          "check": {
+            "no": [
+              "class",
+              "this",
+              "for-loop",
+              "while-loop",
+              "do-while-loop"
+            ],
+            "recommended": [
+              "pure-functions",
+              "higher-order-functions",
+              "immutable-data",
+              "arrow-functions"
+            ]
+          },
+          "example": {
+            "bad": "class Calculator { add(a, b) { return a + b; } }",
+            "good": "const add = (a: number, b: number) => a + b"
+          }
+        },
+        {
+          "name": "chinese-comments",
+          "description": "所有注释必须使用中文书写",
+          "level": "warning",
+          "check": {
+            "require": [
+              "chinese-characters-in-comments"
+            ]
+          },
+          "example": {
+            "bad": "// Calculate sum",
+            "good": "// 计算两数之和"
+          }
+        },
+        {
+          "name": "chinese-output",
+          "description": "所有用户可见的输出必须使用中文",
+          "level": "error",
+          "check": {
+            "no": [
+              "non-chinese-strings",
+              "console.log-english",
+              "alert-english"
+            ],
+            "recommended": [
+              "i18n-functions",
+              "chinese-console"
+            ],
+            "note": "技术性字符串（如API请求字段、技术标识符）可豁免，仅限用户可见文本"
+          },
+          "example": {
+            "bad": "console.log('Error occurred'); alert('Save failed')",
+            "good": "console.log('发生错误'); alert('保存失败')"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Documentation Standards",
+      "rules": [
+        {
+          "name": "module-description",
+          "description": "TypeScript模块必须使用TSDoc规范的中文注释",
+          "level": "error",
+          "check": {
+            "require": [
+              "file-top-comment",
+              "chinese-characters-in-comments",
+              "tsdoc-syntax"
+            ],
+            "format": "/\\*\\*\\s*\\n(\\s*\\*\\s.*\\n)+\\s*\\*/",
+            "tsdoc-rules": [
+              "remarks-tag",
+              "param-tag-with-type",
+              "returns-tag",
+              "example-tag"
+            ]
+          },
+          "example": {
+            "bad": "// 创建视频元素\nconst createVideo = () => ...",
+            "good": "/**\n * 创建屏幕捕捉视频元素\n * @remarks 使用浏览器原生API获取屏幕内容\n * @param options - 视频配置选项 {@link MediaTrackConstraints}\n * @returns 包含媒体流的HTMLVideoElement Promise\n * @example\n * ```ts\n * createScreenCaptureVideo()\n *  .then(video => document.body.appendChild(video))\n * ```\n */\nconst createScreenCaptureVideo = async (options?: MediaTrackConstraints) => {...}"
+          }
+        }
+      ]
+    }
+  ]
+}

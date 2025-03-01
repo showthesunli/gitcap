@@ -1,0 +1,11 @@
+/**
+ * 画布预设尺寸常量
+ * @remarks 定义了常用的画布尺寸配置，可在项目中复用
+ */
+export const CANVAS_PRESETS = {
+  default: { width: 1080, height: 720 },
+  vertical: { width: 720, height: 1080 },
+  square: { width: 720, height: 720 },
+} as const;
+
+export type CanvasPresetKey = keyof typeof CANVAS_PRESETS;

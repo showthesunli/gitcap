@@ -33,19 +33,19 @@ export const VideoCapture = ({
   if (!videoElement) return null;
 
   // 使用ref保存图像实例
-  const imageRef = useRef<Konva.Image | null>(null);
+  const imageRef = useRef<Konva.Image>(null!);
 
   // 计算视频实际尺寸和舞台尺寸的比例，保持视频原始比例
   const videoWidth = videoElement.videoWidth || width;
   const videoHeight = videoElement.videoHeight || height;
-  
+
   // 使用工具函数计算尺寸
-  const { width: scaledWidth, height: scaledHeight, x, y } = calculateVideoSize(
-    videoWidth,
-    videoHeight,
-    width,
-    height
-  );
+  const {
+    width: scaledWidth,
+    height: scaledHeight,
+    x,
+    y,
+  } = calculateVideoSize(videoWidth, videoHeight, width, height);
 
   // 使用自定义钩子处理视频帧更新
   useVideoFrameUpdate(imageRef);
@@ -54,7 +54,7 @@ export const VideoCapture = ({
   const handleWheel = useWheelZoom({
     minScale: 0.1,
     maxScale: 10,
-    scaleBy: 1.1
+    scaleBy: 1.1,
   });
 
   // 处理ref的回调函数

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import Konva from "konva";
 
 /**
  * 编辑器状态管理
@@ -19,6 +20,9 @@ type EditorStore = {
   setIsCapturing: (isCapturing: boolean) => void;
   isRecording: boolean;
   setIsRecording: (isRecording: boolean) => void;
+  // 添加 stageRef
+  stageRef: Konva.Stage | null;
+  setStageRef: (ref: Konva.Stage | null) => void;
 };
 
 export const useEditorStore = create<EditorStore>((set) => ({
@@ -31,4 +35,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
   setIsCapturing: (isCapturing) => set({ isCapturing }),
   isRecording: false,
   setIsRecording: (isRecording) => set({ isRecording }),
+  // 初始化 stageRef
+  stageRef: null,
+  setStageRef: (stageRef) => set({ stageRef }),
 }));

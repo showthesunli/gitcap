@@ -3,11 +3,14 @@
  * @description 画布容器组件，集成屏幕捕获功能
  */
 
+import { useRef, useEffect } from "react";
 import { Stage, Layer } from "react-konva";
 import { cn } from "@/lib/utils";
 import { useScreenCapture } from "./hooks/useScreenCapture";
 import { useKonvaImageUpdater } from "./hooks/useKonvaImageUpdater";
 import { VideoCapture } from "./components/VideoCapture";
+import { useEditorStore } from "@/lib/business/editorStore";
+import Konva from "konva";
 
 /**
  * 画布容器组件属性
@@ -24,6 +27,19 @@ interface CanvasContainerProps {
 export function CanvasContainer({ width, height }: CanvasContainerProps) {
   const { videoElement } = useScreenCapture();
   const { handleImageRef } = useKonvaImageUpdater(videoElement);
+  const { setStageRef } = useEditorStore();
+  const stageRef = useRef<Konva.Stage>(null);
+
+  // 当 stageRef 可用时，更新到 store
+  useEffect(() => {
+    if (stageRef.current) {
+      setStageRef(stageRef.current);
+    }
+    
+    return () => {
+      setStageRef(null);
+    };
+  }, [setStageRef]);
 
   return (
     <div className="flex-1 bg-card flex items-center justify-center">
@@ -38,6 +54,7 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
           "border-2 border-dashed border-muted rounded-lg",
           "transition-[border-color] duration-300 hover:border-primary/50"
         )}
+        ref={stageRef}
       >
         <Layer>
           <VideoCapture 

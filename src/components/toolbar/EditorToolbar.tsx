@@ -15,7 +15,8 @@ import {
 import { useEditorStore } from "@/lib/business/editorStore";
 import { useRef, useEffect } from "react";
 import { recordCanvasToGif, saveGifToFile } from "@/lib/business/exportGif";
-import { toast } from "@/components/ui/use-toast";
+// 替换为 sonner 的 toast
+import { toast } from "sonner";
 
 const CANVAS_PRESETS = {
   default: { width: 1080, height: 720 },
@@ -26,16 +27,20 @@ const CANVAS_PRESETS = {
 interface EditorToolbarProps {
   currentSize: { width: number; height: number };
   onCanvasSizeChange: (size: { width: number; height: number }) => void;
-  canvasRef?: React.RefObject<HTMLCanvasElement>;
 }
 
 export function EditorToolbar({
   currentSize,
   onCanvasSizeChange,
-  canvasRef,
 }: EditorToolbarProps) {
-  const { isCapturing, setIsCapturing, isRecording, setIsRecording } =
-    useEditorStore();
+  const { 
+    isCapturing, 
+    setIsCapturing, 
+    isRecording, 
+    setIsRecording,
+    stageRef 
+  } = useEditorStore();
+  
   const gifRecordingRef = useRef<any>(null);
 
   const handlePresetSelect = (preset: keyof typeof CANVAS_PRESETS) => {
@@ -47,27 +52,34 @@ export function EditorToolbar({
   };
 
   const handleRecordGif = async () => {
-    // 如果没有canvas引用，显示错误提示
-    if (!canvasRef?.current) {
-      toast({
-        title: "录制失败",
-        description: "无法获取画布元素",
-        variant: "destructive",
+    // 如果未处于屏幕捕获状态，不能录制
+    if (!isCapturing) {
+      toast.error("无法录制", {
+        description: "请先启动屏幕捕获功能"
+      });
+      return;
+    }
+    
+    if (!stageRef) {
+      toast.error("录制失败", {
+        description: "无法获取画布元素"
       });
       return;
     }
 
+    // 获取 Konva Stage 的 canvas 元素
+    const canvas = stageRef.toCanvas();
+
     if (!isRecording) {
       // 开始录制
       setIsRecording(true);
-      toast({
-        title: "GIF录制中",
-        description: "正在录制画布内容，请等待...",
+      toast("GIF录制中", {
+        description: "正在录制画布内容，请等待..."
       });
 
       try {
         // 开始录制GIF
-        gifRecordingRef.current = recordCanvasToGif(canvasRef.current, {
+        gifRecordingRef.current = recordCanvasToGif(canvas, {
           fps: 10,
           duration: 3000, // 默认录制3秒
           showProgress: true,
@@ -78,10 +90,8 @@ export function EditorToolbar({
       } catch (error) {
         console.error("GIF录制启动失败:", error);
         setIsRecording(false);
-        toast({
-          title: "录制失败",
-          description: "启动GIF录制时出错",
-          variant: "destructive",
+        toast.error("录制失败", {
+          description: "启动GIF录制时出错"
         });
       }
     } else {
@@ -95,16 +105,13 @@ export function EditorToolbar({
         // 保存GIF文件
         saveGifToFile(gifBlob, `canvas-recording-${new Date().getTime()}.gif`);
         
-        toast({
-          title: "录制完成",
-          description: "GIF已保存到您的下载文件夹",
+        toast.success("录制完成", {
+          description: "GIF已保存到您的下载文件夹"
         });
       } catch (error) {
         console.error("GIF录制失败:", error);
-        toast({
-          title: "录制失败",
-          description: "生成GIF时出错",
-          variant: "destructive",
+        toast.error("录制失败", {
+          description: "生成GIF时出错"
         });
       } finally {
         gifRecordingRef.current = null;
@@ -136,6 +143,7 @@ export function EditorToolbar({
           text={isRecording ? "停止录制" : "录制GIF"}
           variant={isRecording ? "destructive" : "outline"}
           onClick={handleRecordGif}
+          disabled={!isCapturing} // 只有在捕获状态才能录制
         />
         <HoverCard openDelay={100} closeDelay={200}>
           <HoverCardTrigger>

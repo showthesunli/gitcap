@@ -4,7 +4,7 @@
  */
 import { Video, Camera, CodeIcon } from "lucide-react";
 import { ToolButton } from "./ToolButton";
-import { SizePresetsCard } from "./SizePresetsCard";
+import { CanvasSizeControl } from "./CanvasSizeControl";
 import { useToolbarActions } from "@/lib/hooks/useToolbarActions";
 
 interface EditorToolbarProps {
@@ -19,7 +19,6 @@ export const EditorToolbar = ({
   const {
     isCapturing,
     isRecording,
-    handlePresetSelect,
     handleScreenCapture,
     handleRecordGif
   } = useToolbarActions(onCanvasSizeChange);
@@ -41,10 +40,8 @@ export const EditorToolbar = ({
           onClick={handleRecordGif}
           disabled={!isCapturing} // 只有在捕获状态才能录制
         />
-        <SizePresetsCard 
-          currentSize={currentSize}
-          onPresetSelect={handlePresetSelect}
-        />
+        {/* 使用新的尺寸控制组件替代SizePresetsCard */}
+        <CanvasSizeControl />
       </nav>
     </div>
   );

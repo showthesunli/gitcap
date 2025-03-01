@@ -42,29 +42,38 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
   }, [setStageRef]);
 
   return (
-    <div className="flex-1 bg-card flex items-center justify-center">
-      <Stage
-        width={width}
-        height={height}
+    <div className="flex-1 flex items-center justify-center p-4">
+      {/* 创建一个带阴影和边框的画布容器 */}
+      <div 
+        className="bg-card rounded-lg shadow-lg border border-border/50 p-4 overflow-auto"
         style={{
-          width: `${width}px`,
-          height: `${height}px`,
+          maxWidth: '100%',
+          maxHeight: '100%'
         }}
-        className={cn(
-          "border-2 border-dashed border-muted rounded-lg",
-          "transition-[border-color] duration-300 hover:border-primary/50"
-        )}
-        ref={stageRef}
       >
-        <Layer>
-          <VideoCapture 
-            videoElement={videoElement} 
-            width={width} 
-            height={height} 
-            onImageRef={handleImageRef} 
-          />
-        </Layer>
-      </Stage>
+        <Stage
+          width={width}
+          height={height}
+          style={{
+            width: `${width}px`,
+            height: `${height}px`,
+          }}
+          className={cn(
+            "border-2 border-dashed border-muted rounded-lg",
+            "transition-[border-color] duration-300 hover:border-primary/50"
+          )}
+          ref={stageRef}
+        >
+          <Layer>
+            <VideoCapture 
+              videoElement={videoElement} 
+              width={width} 
+              height={height} 
+              onImageRef={handleImageRef} 
+            />
+          </Layer>
+        </Stage>
+      </div>
     </div>
   );
 }

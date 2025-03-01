@@ -6,7 +6,7 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+    <div className="flex flex-col min-h-screen">
       <header className="border-b shadow-sm">
         {React.Children.toArray(children)[0]}
       </header>

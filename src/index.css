@@ -118,7 +118,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html, body {
+    @apply min-h-full bg-gradient-to-b from-slate-50 to-slate-100;
+    background-attachment: fixed;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
   }
 }

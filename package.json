@@ -23,7 +23,8 @@
     "react-konva": "^19.0.3",
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.0.9",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

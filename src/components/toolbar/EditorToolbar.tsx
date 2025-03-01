@@ -67,9 +67,6 @@ export function EditorToolbar({
       return;
     }
 
-    // 获取 Konva Stage 的 canvas 元素
-    const canvas = stageRef.toCanvas();
-
     if (!isRecording) {
       // 开始录制
       setIsRecording(true);
@@ -78,8 +75,8 @@ export function EditorToolbar({
       });
 
       try {
-        // 开始录制GIF，获取控制器
-        gifRecordingRef.current = recordCanvasToGif(canvas, {
+        // 直接传递stage引用而不是canvas
+        gifRecordingRef.current = recordCanvasToGif(stageRef, {
           fps: 10,
           quality: 10,
           showProgress: true,
@@ -196,15 +193,4 @@ export function EditorToolbar({
                 >
                   <Square className="w-4 h-4 text-primary" />
                   <span>
-                    正方形 ({CANVAS_PRESETS.square.width}×
-                    {CANVAS_PRESETS.square.height})
-                  </span>
-                </button>
-              </div>
-            </div>
-          </HoverCardContent>
-        </HoverCard>
-      </nav>
-    </div>
-  );
-}
+                    正方

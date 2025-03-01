@@ -3,6 +3,7 @@
  * @remarks 提供将Canvas内容导出为GIF动画的功能
  */
 import GIF from "gif.js";
+import Konva from "konva"; // 添加Konva导入
 
 /**
  * 录制GIF配置选项接口
@@ -25,15 +26,15 @@ interface RecordGifOptions {
 }
 
 /**
- * 将Canvas内容录制为GIF
- * @remarks 使用gif.js库捕获canvas内容并生成GIF动画
- * @param canvas - 要录制的Canvas元素
+ * 将Konva舞台内容录制为GIF
+ * @remarks 使用gif.js库捕获Konva舞台内容并生成GIF动画
+ * @param stage - 要录制的Konva舞台元素
  * @param options - GIF录制选项
  * @returns 一个包含控制方法的对象，用于停止录制并获取结果
  * @example
  * ```tsx
- * const canvas = document.querySelector('canvas');
- * const controller = recordCanvasToGif(canvas, { fps: 10 });
+ * const stage = stageRef.current;
+ * const controller = recordCanvasToGif(stage, { fps: 10 });
  *
  * // 稍后停止录制并获取结果
  * controller.stop().then(blob => {
@@ -42,17 +43,21 @@ interface RecordGifOptions {
  * ```
  */
 export const recordCanvasToGif = (
-  canvas: HTMLCanvasElement,
+  stage: Konva.Stage, // 修改为接收Konva.Stage
   options: RecordGifOptions = {}
 ): {
   stop: () => Promise<Blob>;
   abort: () => void;
 } => {
+  // 获取舞台宽高
+  const stageWidth = stage.width();
+  const stageHeight = stage.height();
+  
   const {
     fps = 10,
     quality = 10,
-    width = canvas.width,
-    height = canvas.height,
+    width = stageWidth, // 使用舞台宽度
+    height = stageHeight, // 使用舞台高度
     showProgress = true,
     onProgress,
   } = options;
@@ -110,8 +115,18 @@ export const recordCanvasToGif = (
 
     // 如果经过了足够的时间，捕获一帧
     if (elapsed >= frameDelay) {
+      // 关键：强制更新所有图层以确保最新的视频帧被渲染
+      stage.getLayers().forEach(layer => layer.batchDraw());
+      
+      // 为当前帧创建新的canvas
+      const currentCanvas = stage.toCanvas({
+        pixelRatio: 1, // 使用1:1的像素比以避免尺寸问题
+      });
+
       // 创建当前canvas内容的副本
       const img = new Image();
+      pendingFrames++;
+      
       img.onload = () => {
         // 添加当前图像帧到GIF
         gif.addFrame(img, { copy: true, delay: frameDelay });
@@ -128,8 +143,7 @@ export const recordCanvasToGif = (
       };
       
       // 将当前canvas内容转换为数据URL并设置给图像
-      img.src = canvas.toDataURL('image/png');
-      pendingFrames++;
+      img.src = currentCanvas.toDataURL('image/png');
 
       // 更新上次捕获时间
       lastCaptureTime = timestamp;

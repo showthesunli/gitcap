@@ -12,16 +12,9 @@ interface EditorToolbarProps {
   onCanvasSizeChange: (size: { width: number; height: number }) => void;
 }
 
-export const EditorToolbar = ({
-  currentSize,
-  onCanvasSizeChange,
-}: EditorToolbarProps) => {
-  const {
-    isCapturing,
-    isRecording,
-    handleScreenCapture,
-    handleRecordGif
-  } = useToolbarActions(onCanvasSizeChange);
+export const EditorToolbar = ({ onCanvasSizeChange }: EditorToolbarProps) => {
+  const { isCapturing, isRecording, handleScreenCapture, handleRecordGif } =
+    useToolbarActions(onCanvasSizeChange);
 
   return (
     <div className="flex justify-center p-3 bg-background border-b shadow-sm">

@@ -193,4 +193,15 @@ export function EditorToolbar({
                 >
                   <Square className="w-4 h-4 text-primary" />
                   <span>
-                    正方
+                    正方形 ({CANVAS_PRESETS.square.width}×
+                    {CANVAS_PRESETS.square.height})
+                  </span>
+                </button>
+              </div>
+            </div>
+          </HoverCardContent>
+        </HoverCard>
+      </nav>
+    </div>
+  );
+}

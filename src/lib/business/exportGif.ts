@@ -2,7 +2,7 @@
  * Canvas录制GIF功能模块
  * @remarks 提供将Canvas内容导出为GIF动画的功能
  */
-import GIF from 'gif.js';
+import GIF from "gif.js";
 
 /**
  * 录制GIF配置选项接口
@@ -53,7 +53,7 @@ export const recordCanvasToGif = (
   } = options;
 
   // 计算需要的帧数
-  const frameCount = Math.ceil(duration / 1000 * fps);
+  const frameCount = Math.ceil((duration / 1000) * fps);
   // 每帧之间的时间间隔(毫秒)
   const frameDelay = 1000 / fps;
 
@@ -64,20 +64,20 @@ export const recordCanvasToGif = (
       quality,
       width,
       height,
-      workerScript: new URL('./gif.worker.js', import.meta.url).href, // 使用Vite的导入语法
+      workerScript: new URL("gif.js/dist/gif.worker.js", import.meta.url).href, // 使用Vite的导入语法
     });
 
     let framesProcessed = 0;
     let stopped = false;
-    
+
     // 监听GIF完成事件
-    gif.on('finished', (blob: Blob) => {
+    gif.on("finished", (blob: Blob) => {
       resolve(blob);
     });
 
     // 监听进度事件
     if (showProgress || onProgress) {
-      gif.on('progress', (progress: number) => {
+      gif.on("progress", (progress: number) => {
         if (onProgress) onProgress(progress);
       });
     }
@@ -104,7 +104,7 @@ export const recordCanvasToGif = (
     // 提供一种方法来停止录制
     gif.abort = () => {
       stopped = true;
-      reject(new Error('GIF录制已中止'));
+      reject(new Error("GIF录制已中止"));
     };
   });
 };
@@ -115,13 +115,16 @@ export const recordCanvasToGif = (
  * @param gifBlob - GIF的Blob数据
  * @param filename - 文件名，默认为'recorded.gif'
  */
-export const saveGifToFile = (gifBlob: Blob, filename = 'recorded.gif'): void => {
+export const saveGifToFile = (
+  gifBlob: Blob,
+  filename = "recorded.gif"
+): void => {
   const url = URL.createObjectURL(gifBlob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = filename;
   a.click();
-  
+
   // 释放URL对象
   setTimeout(() => URL.revokeObjectURL(url), 100);
 };

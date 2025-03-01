@@ -12,7 +12,7 @@ interface RecordGifOptions {
   fps?: number;
   /** 质量, 1-30, 数值越小质量越高 */
   quality?: number;
-  /** 录制持续时间(毫秒) */
+  /** 录制持续时间(毫秒) - 仅在自动模式下使用 */
   duration?: number;
   /** 宽度，默认使用canvas宽度 */
   width?: number;
@@ -29,84 +29,122 @@ interface RecordGifOptions {
  * @remarks 使用gif.js库捕获canvas内容并生成GIF动画
  * @param canvas - 要录制的Canvas元素
  * @param options - GIF录制选项
- * @returns 包含GIF数据的Promise<Blob>
+ * @returns 一个包含控制方法的对象，用于停止录制并获取结果
  * @example
  * ```tsx
  * const canvas = document.querySelector('canvas');
- * const gifBlob = await recordCanvasToGif(canvas, { fps: 10, duration: 3000 });
- * const url = URL.createObjectURL(gifBlob);
- * // 下载或显示GIF
+ * const controller = recordCanvasToGif(canvas, { fps: 10 });
+ * 
+ * // 稍后停止录制并获取结果
+ * controller.stop().then(blob => {
+ *   // 处理生成的GIF
+ * });
  * ```
  */
 export const recordCanvasToGif = (
   canvas: HTMLCanvasElement,
   options: RecordGifOptions = {}
-): Promise<Blob> => {
+): { 
+  stop: () => Promise<Blob>, 
+  abort: () => void 
+} => {
   const {
     fps = 10,
     quality = 10,
-    duration = 3000,
     width = canvas.width,
     height = canvas.height,
     showProgress = true,
     onProgress,
   } = options;
 
-  // 计算需要的帧数
-  const frameCount = Math.ceil((duration / 1000) * fps);
   // 每帧之间的时间间隔(毫秒)
   const frameDelay = 1000 / fps;
 
-  return new Promise((resolve, reject) => {
-    // 创建GIF编码器实例
-    const gif = new GIF({
-      workers: 2,
-      quality,
-      width,
-      height,
-      workerScript: new URL("gif.js/dist/gif.worker.js", import.meta.url).href, // 使用Vite的导入语法
+  let framesProcessed = 0;
+  let stopped = false;
+  let isRendering = false;
+  let resolvePromise: (blob: Blob) => void;
+  let rejectPromise: (error: Error) => void;
+  let animationTimeoutId: number | null = null;
+  
+  // 创建结果Promise
+  const resultPromise = new Promise<Blob>((resolve, reject) => {
+    resolvePromise = resolve;
+    rejectPromise = reject;
+  });
+
+  // 创建GIF编码器实例
+  const gif = new GIF({
+    workers: 2,
+    quality,
+    width,
+    height,
+    workerScript: new URL("gif.js/dist/gif.worker.js", import.meta.url).href,
+  });
+
+  // 监听GIF完成事件
+  gif.on("finished", (blob: Blob) => {
+    resolvePromise(blob);
+  });
+
+  // 监听进度事件
+  if (showProgress || onProgress) {
+    gif.on("progress", (progress: number) => {
+      if (onProgress) onProgress(progress);
     });
+  }
 
-    let framesProcessed = 0;
-    let stopped = false;
-
-    // 监听GIF完成事件
-    gif.on("finished", (blob: Blob) => {
-      resolve(blob);
-    });
-
-    // 监听进度事件
-    if (showProgress || onProgress) {
-      gif.on("progress", (progress: number) => {
-        if (onProgress) onProgress(progress);
-      });
+  // 帧捕获函数
+  const captureFrame = () => {
+    if (stopped || isRendering) {
+      return;
     }
 
-    // 帧捕获函数
-    const captureFrame = () => {
-      if (stopped || framesProcessed >= frameCount) {
-        // 完成所有帧的捕获，渲染GIF
-        gif.render();
-        return;
+    // 添加当前canvas帧到GIF
+    gif.addFrame(canvas, { copy: true, delay: frameDelay });
+    framesProcessed++;
+
+    // 调度下一帧捕获
+    animationTimeoutId = window.setTimeout(captureFrame, frameDelay) as unknown as number;
+  };
+
+  // 开始捕获
+  captureFrame();
+
+  return {
+    // 停止录制并获取结果
+    stop: () => {
+      if (stopped || isRendering) {
+        return resultPromise;
       }
-
-      // 添加当前canvas帧到GIF
-      gif.addFrame(canvas, { copy: true, delay: frameDelay });
-      framesProcessed++;
-
-      // 调度下一帧捕获
-      setTimeout(captureFrame, frameDelay);
-    };
-
-    // 开始捕获
-    captureFrame();
-
-    // 提供一种方法来停止录制
-    gif.abort = () => {
+      
       stopped = true;
-      reject(new Error("GIF录制已中止"));
-    };
-  });
+      isRendering = true;
+      
+      if (animationTimeoutId) {
+        clearTimeout(animationTimeoutId);
+      }
+      
+      // 如果没有捕获任何帧，返回错误
+      if (framesProcessed === 0) {
+        rejectPromise(new Error("未捕获任何帧"));
+        return resultPromise;
+      }
+      
+      // 开始渲染GIF
+      gif.render();
+      return resultPromise;
+    },
+    
+    // 中止录制
+    abort: () => {
+      stopped = true;
+      if (animationTimeoutId) {
+        clearTimeout(animationTimeoutId);
+      }
+      rejectPromise(new Error("GIF录制已中止"));
+    }
+  };
 };
 
 /**

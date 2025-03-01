@@ -74,17 +74,17 @@ export function EditorToolbar({
       // 开始录制
       setIsRecording(true);
       toast("GIF录制中", {
-        description: "正在录制画布内容，请等待..."
+        description: "正在录制画布内容，点击停止按钮结束录制"
       });
 
       try {
-        // 开始录制GIF
+        // 开始录制GIF，获取控制器
         gifRecordingRef.current = recordCanvasToGif(canvas, {
           fps: 10,
-          duration: 3000, // 默认录制3秒
+          quality: 10,
           showProgress: true,
           onProgress: (progress) => {
-            console.log(`录制进度: ${Math.round(progress * 100)}%`);
+            console.log(`处理进度: ${Math.round(progress * 100)}%`);
           },
         });
       } catch (error) {
@@ -98,9 +98,17 @@ export function EditorToolbar({
       // 停止录制
       setIsRecording(false);
       
+      if (!gifRecordingRef.current) {
+        return;
+      }
+      
+      toast("处理中", {
+        description: "正在生成GIF，请稍候..."
+      });
+      
       try {
-        // 等待GIF生成完成
-        const gifBlob = await gifRecordingRef.current;
+        // 停止录制并等待GIF生成完成
+        const gifBlob = await gifRecordingRef.current.stop();
         
         // 保存GIF文件
         saveGifToFile(gifBlob, `canvas-recording-${new Date().getTime()}.gif`);
@@ -122,7 +130,7 @@ export function EditorToolbar({
   // 组件卸载时清理录制
   useEffect(() => {
     return () => {
-      if (gifRecordingRef.current && typeof gifRecordingRef.current.abort === 'function') {
+      if (gifRecordingRef.current) {
         gifRecordingRef.current.abort();
       }
     };

@@ -66,6 +66,7 @@ export const recordCanvasToGif = (
   let resolvePromise: (blob: Blob) => void;
   let rejectPromise: (error: Error) => void;
   let animationFrameId: number | null = null;
+  let pendingFrames = 0; // 跟踪等待处理的帧数
 
   // 创建结果Promise
   const resultPromise = new Promise<Blob>((resolve, reject) => {
@@ -109,10 +110,26 @@ export const recordCanvasToGif = (
 
     // 如果经过了足够的时间，捕获一帧
     if (elapsed >= frameDelay) {
-      // 添加当前canvas帧到GIF
-      gif.addFrame(canvas, { copy: true, delay: frameDelay });
-      framesProcessed++;
-      console.log(`已捕获第${framesProcessed}帧`);
+      // 创建当前canvas内容的副本
+      const img = new Image();
+      img.onload = () => {
+        // 添加当前图像帧到GIF
+        gif.addFrame(img, { copy: true, delay: frameDelay });
+        framesProcessed++;
+        pendingFrames--;
+        console.log(`已捕获第${framesProcessed}帧`);
+        
+        // 如果已停止录制且没有更多待处理的帧，开始渲染
+        if (stopped && pendingFrames === 0 && !isRendering) {
+          isRendering = true;
+          console.log(`GIF录制完成，共捕获${framesProcessed}帧`);
+          gif.render();
+        }
+      };
+      
+      // 将当前canvas内容转换为数据URL并设置给图像
+      img.src = canvas.toDataURL('image/png');
+      pendingFrames++;
 
       // 更新上次捕获时间
       lastCaptureTime = timestamp;
@@ -133,22 +150,26 @@ export const recordCanvasToGif = (
       }
 
       stopped = true;
-      isRendering = true;
 
       if (animationFrameId !== null) {
         cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
       }
 
-      // 如果没有捕获任何帧，返回错误
-      if (framesProcessed === 0) {
+      // 如果没有捕获任何帧且没有待处理的帧，返回错误
+      if (framesProcessed === 0 && pendingFrames === 0) {
         rejectPromise(new Error("未捕获任何帧"));
         return resultPromise;
       }
 
-      console.log(`GIF录制完成，共捕获${framesProcessed}帧`);
-
-      // 开始渲染GIF
-      gif.render();
+      // 如果还有待处理的帧，等待它们完成
+      // 在最后一帧的onload回调中会调用gif.render()
+      if (pendingFrames === 0) {
+        isRendering = true;
+        console.log(`GIF录制完成，共捕获${framesProcessed}帧`);
+        gif.render();
+      }
+      
       return resultPromise;
     },
 
@@ -157,6 +178,7 @@ export const recordCanvasToGif = (
       stopped = true;
       if (animationFrameId !== null) {
         cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
       }
       rejectPromise(new Error("GIF录制已中止"));
     },

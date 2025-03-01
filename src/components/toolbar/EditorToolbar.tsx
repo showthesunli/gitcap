@@ -1,4 +1,4 @@
-import { Video, Camera, Ruler, MonitorSmartphone, Square } from "lucide-react";
+import { Video, Camera, Ruler, MonitorSmartphone, Square, RecordIcon } from "lucide-react";
 import { ToolButton } from "./ToolButton";
 import {
   HoverCard,
@@ -19,7 +19,7 @@ interface EditorToolbarProps {
 }
 
 export function EditorToolbar({ currentSize, onCanvasSizeChange }: EditorToolbarProps) {
-  const { isCapturing, setIsCapturing } = useEditorStore();
+  const { isCapturing, setIsCapturing, isRecording, setIsRecording } = useEditorStore();
   
   const handlePresetSelect = (preset: keyof typeof CANVAS_PRESETS) => {
     onCanvasSizeChange(CANVAS_PRESETS[preset]);
@@ -27,6 +27,10 @@ export function EditorToolbar({ currentSize, onCanvasSizeChange }: EditorToolbar
 
   const handleScreenCapture = () => {
     setIsCapturing(!isCapturing);
+  };
+  
+  const handleRecordGif = () => {
+    setIsRecording(!isRecording);
   };
 
   return (
@@ -38,6 +42,12 @@ export function EditorToolbar({ currentSize, onCanvasSizeChange }: EditorToolbar
           text={isCapturing ? "停止捕捉" : "屏幕捕捉"}
           variant={isCapturing ? "destructive" : "outline"}
           onClick={handleScreenCapture}
+        />
+        <ToolButton 
+          icon={RecordIcon}
+          text={isRecording ? "停止录制" : "录制GIF"}
+          variant={isRecording ? "destructive" : "outline"}
+          onClick={handleRecordGif}
         />
         <HoverCard openDelay={100} closeDelay={200}>
           <HoverCardTrigger>

@@ -5,7 +5,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { useState } from "react";
+import { useEditorStore } from "@/lib/business/editorStore";
 
 const CANVAS_PRESETS = {
   default: { width: 1080, height: 720 },
@@ -19,7 +19,7 @@ interface EditorToolbarProps {
 }
 
 export function EditorToolbar({ currentSize, onCanvasSizeChange }: EditorToolbarProps) {
-  const [isCapturing, setIsCapturing] = useState(false);
+  const { isCapturing, setIsCapturing } = useEditorStore();
   
   const handlePresetSelect = (preset: keyof typeof CANVAS_PRESETS) => {
     onCanvasSizeChange(CANVAS_PRESETS[preset]);

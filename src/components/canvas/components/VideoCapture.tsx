@@ -18,7 +18,7 @@ interface VideoCaptureProps {
 
 /**
  * 渲染视频捕获的Konva图像组件
- * @remarks 将视频元素渲染为Konva图像
+ * @remarks 将视频元素渲染为Konva图像，支持拖拽和缩放
  */
 export const VideoCapture = ({ 
   videoElement, 
@@ -28,12 +28,29 @@ export const VideoCapture = ({
 }: VideoCaptureProps) => {
   if (!videoElement) return null;
   
+  // 计算视频实际尺寸和舞台尺寸的比例，保持视频原始比例
+  const videoWidth = videoElement.videoWidth || width;
+  const videoHeight = videoElement.videoHeight || height;
+  
+  // 计算适合舞台的尺寸，保持视频原始宽高比
+  const scaleRatio = Math.min(
+    width / videoWidth,
+    height / videoHeight
+  );
+  
+  const scaledWidth = videoWidth * scaleRatio;
+  const scaledHeight = videoHeight * scaleRatio;
+  
   return (
     <KonvaImage
       image={videoElement}
-      width={width}
-      height={height}
+      width={scaledWidth}
+      height={scaledHeight}
+      draggable={true}
       ref={onImageRef}
+      // 居中显示
+      x={(width - scaledWidth) / 2}
+      y={(height - scaledHeight) / 2}
     />
   );
 };

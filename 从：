@@ -1,0 +1,1 @@
+workerScript: '/gif.worker.js', // 确保worker脚本路径正确

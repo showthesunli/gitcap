@@ -64,7 +64,7 @@ export const recordCanvasToGif = (
       quality,
       width,
       height,
-      workerScript: '/gif.worker.js', // 确保worker脚本路径正确
+      workerScript: new URL('./gif.worker.js', import.meta.url).href, // 使用Vite的导入语法
     });
 
     let framesProcessed = 0;

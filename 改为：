@@ -1,0 +1,1 @@
+workerScript: new URL('./gif.worker.js', import.meta.url).href, // 使用Vite的导入语法

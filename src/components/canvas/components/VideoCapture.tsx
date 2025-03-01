@@ -1,6 +1,6 @@
 /**
  * @file VideoCapture.tsx
- * @description 视频捕获的Konva图像组件
+ * @description 视频捕获的Konva图像组件，支持鼠标滚轮缩放
  */
 
 import { Image as KonvaImage } from "react-konva";
@@ -19,7 +19,7 @@ interface VideoCaptureProps {
 
 /**
  * 渲染视频捕获的Konva图像组件
- * @remarks 将视频元素渲染为Konva图像，支持拖拽和缩放
+ * @remarks 将视频元素渲染为Konva图像，支持拖拽和鼠标滚轮缩放
  */
 export const VideoCapture = ({
   videoElement,
@@ -72,6 +72,54 @@ export const VideoCapture = ({
     onImageRef(node);
   };
 
+  // 处理鼠标滚轮事件
+  const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
+    // 阻止默认行为（页面滚动）
+    e.evt.preventDefault();
+    
+    const image = imageRef.current;
+    if (!image) return;
+
+    const stage = image.getStage();
+    if (!stage) return;
+    
+    // 缩放系数 - 每次缩放的比例
+    const scaleBy = 1.1;
+    
+    // 获取当前缩放值
+    const oldScale = image.scaleX();
+
+    // 获取鼠标相对于舞台的位置
+    const pointer = stage.getPointerPosition();
+    if (!pointer) return;
+
+    // 计算鼠标相对于图像的位置
+    const mousePointTo = {
+      x: (pointer.x - image.x()) / oldScale,
+      y: (pointer.y - image.y()) / oldScale,
+    };
+
+    // 确定缩放方向：向上滚动为放大，向下滚动为缩小
+    const newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+    
+    // 限制缩放范围，防止过度缩放或缩小
+    const limitedScale = Math.max(0.1, Math.min(newScale, 10));
+
+    // 应用新的缩放比例
+    image.scale({ x: limitedScale, y: limitedScale });
+
+    // 调整位置，使缩放以鼠标位置为中心
+    const newPos = {
+      x: pointer.x - mousePointTo.x * limitedScale,
+      y: pointer.y - mousePointTo.y * limitedScale,
+    };
+    
+    image.position(newPos);
+    
+    // 重绘图层
+    image.getLayer()?.batchDraw();
+  };
+
   return (
     <KonvaImage
       image={videoElement}
@@ -79,6 +127,7 @@ export const VideoCapture = ({
       height={scaledHeight}
       draggable={true}
       ref={handleRef}
+      onWheel={handleWheel}
       // 居中显示
       x={(width - scaledWidth) / 2}
       y={(height - scaledHeight) / 2}

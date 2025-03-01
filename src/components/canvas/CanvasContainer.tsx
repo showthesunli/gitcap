@@ -10,14 +10,17 @@ interface CanvasContainerProps {
   height: number;
 }
 
-export function CanvasContainer({ width, height }: CanvasContainerProps) {
+/**
+ * 处理屏幕捕获的自定义Hook
+ * @remarks 管理视频捕获的生命周期和状态
+ * @returns 捕获的视频元素和捕获状态
+ */
+const useScreenCapture = () => {
   const { isCapturing, setIsCapturing } = useEditorStore();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const captureStopRef = useRef<(() => void) | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
 
-  // 处理屏幕捕获
   useEffect(() => {
     let isMounted = true;
 
@@ -86,12 +89,20 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
       if (videoRef.current) {
         videoRef.current.remove();
       }
-      
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
     };
   }, [isCapturing, setIsCapturing]);
+
+  return { videoElement };
+};
+
+/**
+ * 处理Konva图像更新的自定义Hook
+ * @remarks 使用requestAnimationFrame持续更新视频帧
+ * @param videoElement - 需要渲染的视频元素
+ * @returns 图像引用回调函数
+ */
+const useKonvaImageUpdater = (videoElement: HTMLVideoElement | null) => {
+  const animationFrameRef = useRef<number | null>(null);
 
   // 更新Konva图像
   const updateImage = (node: Konva.Image) => {
@@ -105,7 +116,7 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
   };
 
   // 当Konva图像挂载时开始更新循环
-  const handleImageLoad = (node: Konva.Image) => {
+  const handleImageRef = (node: Konva.Image) => {
     if (node && videoElement) {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -113,6 +124,53 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
       animationFrameRef.current = requestAnimationFrame(() => updateImage(node));
     }
   };
+
+  // 清理动画帧
+  useEffect(() => {
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [videoElement]);
+
+  return { handleImageRef };
+};
+
+/**
+ * 渲染视频捕获的Konva图像组件
+ * @remarks 将视频元素渲染为Konva图像
+ */
+const VideoCapture = ({ 
+  videoElement, 
+  width, 
+  height, 
+  onImageRef 
+}: { 
+  videoElement: HTMLVideoElement | null; 
+  width: number; 
+  height: number; 
+  onImageRef: (node: Konva.Image) => void;
+}) => {
+  if (!videoElement) return null;
+  
+  return (
+    <KonvaImage
+      image={videoElement}
+      width={width}
+      height={height}
+      ref={onImageRef}
+    />
+  );
+};
+
+/**
+ * 画布容器组件
+ * @remarks 集成屏幕捕获功能的Konva舞台
+ */
+export function CanvasContainer({ width, height }: CanvasContainerProps) {
+  const { videoElement } = useScreenCapture();
+  const { handleImageRef } = useKonvaImageUpdater(videoElement);
 
   return (
     <div className="flex-1 bg-card flex items-center justify-center">
@@ -129,14 +187,12 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
         )}
       >
         <Layer>
-          {videoElement && (
-            <KonvaImage
-              image={videoElement}
-              width={width}
-              height={height}
-              ref={handleImageLoad}
-            />
-          )}
+          <VideoCapture 
+            videoElement={videoElement} 
+            width={width} 
+            height={height} 
+            onImageRef={handleImageRef} 
+          />
         </Layer>
       </Stage>
     </div>

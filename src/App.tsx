@@ -3,6 +3,7 @@ import { EditorToolbar } from "@/components/toolbar/EditorToolbar";
 import { CanvasContainer } from "@/components/canvas/CanvasContainer";
 import { useEditorStore } from "@/lib/business/editorStore";
 import { Toaster } from 'sonner';
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 /**
  * 应用主组件
@@ -18,7 +19,7 @@ function App() {
   const { canvasSize, setCanvasSize } = useEditorStore();
 
   return (
-    <>
+    <ThemeProvider>
       <MainLayout>
         <EditorToolbar
           currentSize={canvasSize}
@@ -27,7 +28,7 @@ function App() {
         <CanvasContainer {...canvasSize} />
       </MainLayout>
       <Toaster richColors />
-    </>
+    </ThemeProvider>
   );
 }
 

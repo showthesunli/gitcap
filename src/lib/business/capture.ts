@@ -99,7 +99,8 @@ export async function captureScreenStream(
     }
 
     videoTrack.onended = () => {
-      console.log("屏幕共享已停止");
+      console.log("屏幕共享已停止 - 仅停止轨道");
+      // 只停止轨道，不额外处理，让VideoCapture组件来处理状态
       stream.getTracks().forEach((track) => track.stop());
     };
 

@@ -5,7 +5,7 @@
 
 import { Image as KonvaImage } from "react-konva";
 import Konva from "konva";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { calculateVideoSize } from "@/lib/utils/videoUtils";
 import { useVideoFrameUpdate } from "@/lib/hooks/useVideoFrameUpdate";
 import { useWheelZoom } from "@/lib/hooks/useWheelZoom";
@@ -18,6 +18,8 @@ interface VideoCaptureProps {
   width: number;
   height: number;
   onImageRef: (node: Konva.Image) => void;
+  // 新增: 当捕获结束时的回调函数
+  onCaptureEnded?: () => void;
 }
 
 /**
@@ -29,6 +31,7 @@ export const VideoCapture = ({
   width,
   height,
   onImageRef,
+  onCaptureEnded,
 }: VideoCaptureProps) => {
   if (!videoElement) return null;
 
@@ -62,6 +65,33 @@ export const VideoCapture = ({
     imageRef.current = node;
     onImageRef(node);
   };
+
+  // 新增: 监听视频轨道的ended事件
+  useEffect(() => {
+    if (!videoElement || !videoElement.srcObject) return;
+    
+    const stream = videoElement.srcObject as MediaStream;
+    const videoTracks = stream.getVideoTracks();
+    
+    if (videoTracks.length === 0) return;
+    
+    const videoTrack = videoTracks[0];
+    
+    // 添加轨道结束事件监听器
+    const handleTrackEnded = () => {
+      console.log("视频轨道已结束 - 从VideoCapture组件中处理");
+      if (onCaptureEnded) {
+        onCaptureEnded();
+      }
+    };
+    
+    videoTrack.addEventListener('ended', handleTrackEnded);
+    
+    // 清理函数
+    return () => {
+      videoTrack.removeEventListener('ended', handleTrackEnded);
+    };
+  }, [videoElement, onCaptureEnded]);
 
   return (
     <KonvaImage

@@ -14,7 +14,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
  * <App />
  * ```
  */
-function App() {
+const App = () => {
   // 使用Zustand store替代本地state
   const { canvasSize, setCanvasSize } = useEditorStore();
 

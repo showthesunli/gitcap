@@ -19,7 +19,7 @@ export const EditorToolbar = ({ onCanvasSizeChange }: EditorToolbarProps) => {
   return (
     <div className="flex justify-center p-3 bg-background border-b shadow-sm">
       <nav className="flex gap-3">
-        <ToolButton icon={Video} text="视频导入" />
+        {/* <ToolButton icon={Video} text="视频导入" /> */}
         <ToolButton
           icon={Camera}
           text={isCapturing ? "停止捕捉" : "屏幕捕捉"}

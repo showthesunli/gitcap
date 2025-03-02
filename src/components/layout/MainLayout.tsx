@@ -7,8 +7,8 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="border-b shadow-sm p-4 flex justify-between items-center">
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
+      <header className="border-border border-b shadow-sm p-4 flex justify-between items-center bg-card text-card-foreground">
         <div className="flex-1">
           {/* 左侧空白区域 */}
         </div>
@@ -19,7 +19,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           <ThemeToggle />
         </div>
       </header>
-      <main className="flex-1">{React.Children.toArray(children)[1]}</main>
+      <main className="flex-1 p-4 bg-background">{React.Children.toArray(children)[1]}</main>
     </div>
   );
 }

@@ -2,7 +2,7 @@
  * 编辑器工具栏组件
  * @remarks 提供画布操作的主要工具按钮，包括屏幕捕捉、GIF录制和画布尺寸调整
  */
-import { Video, Camera, CodeIcon } from "lucide-react";
+import { Camera, CodeIcon } from "lucide-react";
 import { ToolButton } from "./ToolButton";
 import { CanvasSizeControl } from "./CanvasSizeControl";
 import { useToolbarActions } from "@/lib/hooks/useToolbarActions";

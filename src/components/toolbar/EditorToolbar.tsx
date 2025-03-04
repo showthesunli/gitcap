@@ -2,9 +2,11 @@
  * 编辑器工具栏组件
  * @remarks 提供画布操作的主要工具按钮，包括屏幕捕捉、GIF录制和画布尺寸调整
  */
+import { useState } from "react";
 import { Camera, CodeIcon } from "lucide-react";
 import { ToolButton } from "./ToolButton";
 import { CanvasSizeControl } from "./CanvasSizeControl";
+import { FpsControl } from "./FpsControl";
 import { useToolbarActions } from "@/lib/hooks/useToolbarActions";
 
 interface EditorToolbarProps {
@@ -13,13 +15,14 @@ interface EditorToolbarProps {
 }
 
 export const EditorToolbar = ({ onCanvasSizeChange }: EditorToolbarProps) => {
+  const [fps, setFps] = useState(10); // 默认 FPS 值为 10
+  
   const { isCapturing, isRecording, handleScreenCapture, handleRecordGif } =
-    useToolbarActions(onCanvasSizeChange);
+    useToolbarActions(onCanvasSizeChange, { fps });
 
   return (
     <div className="flex justify-center p-3 bg-background border-b shadow-sm">
-      <nav className="flex gap-3">
-        {/* <ToolButton icon={Video} text="视频导入" /> */}
+      <nav className="flex gap-3 items-center">
         <ToolButton
           icon={Camera}
           text={isCapturing ? "停止捕捉" : "屏幕捕捉"}
@@ -33,8 +36,20 @@ export const EditorToolbar = ({ onCanvasSizeChange }: EditorToolbarProps) => {
           onClick={handleRecordGif}
           disabled={!isCapturing} // 只有在捕获状态才能录制
         />
-        {/* 使用新的尺寸控制组件替代SizePresetsCard */}
-        <CanvasSizeControl />
+        
+        {/* FPS 控制 */}
+        <div className="border-l pl-3 ml-1">
+          <FpsControl 
+            fps={fps}
+            onChange={setFps}
+            disabled={isRecording} // 录制时禁用 FPS 调整
+          />
+        </div>
+        
+        {/* 画布尺寸控制 */}
+        <div className="border-l pl-3 ml-1">
+          <CanvasSizeControl />
+        </div>
       </nav>
     </div>
   );

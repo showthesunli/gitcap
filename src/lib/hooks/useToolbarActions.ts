@@ -8,9 +8,16 @@ import { useEditorStore } from "@/lib/business/editorStore";
 import { recordCanvasToGif, saveGifToFile } from "@/lib/business/exportGif";
 import { CANVAS_PRESETS, CanvasPresetKey } from "@/lib/constants/canvasPresets";
 
+interface ToolbarActionOptions {
+  fps?: number;
+}
+
 export const useToolbarActions = (
-  onCanvasSizeChange: (size: { width: number; height: number }) => void
+  onCanvasSizeChange: (size: { width: number; height: number }) => void,
+  options: ToolbarActionOptions = {}
 ) => {
+  const { fps = 10 } = options;
+  
   const { 
     isCapturing, 
     setIsCapturing, 
@@ -53,9 +60,9 @@ export const useToolbarActions = (
       });
 
       try {
-        // 直接传递stage引用而不是canvas
+        // 使用当前设置的fps进行录制
         gifRecordingRef.current = recordCanvasToGif(stageRef, {
-          fps: 10,
+          fps,  // 使用传入的fps值
           quality: 10,
           showProgress: true,
           onProgress: (progress) => {

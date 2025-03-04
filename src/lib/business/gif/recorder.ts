@@ -49,7 +49,6 @@ export const recordCanvasToGif = (
   let resolvePromise: (blob: Blob) => void;
   let rejectPromise: (error: Error) => void;
   let animationFrameId: number | null = null;
-  let pendingFrames = 0; // 跟踪等待处理的帧数
 
   // 创建结果Promise
   const resultPromise = new Promise<Blob>((resolve, reject) => {
@@ -101,27 +100,10 @@ export const recordCanvasToGif = (
         pixelRatio: 1, // 使用1:1的像素比以避免尺寸问题
       });
 
-      // 创建当前canvas内容的副本
-      const img = new Image();
-      pendingFrames++;
-      
-      img.onload = () => {
-        // 添加当前图像帧到GIF
-        gif.addFrame(img, { copy: true, delay: frameDelay });
-        framesProcessed++;
-        pendingFrames--;
-        console.log(`已捕获第${framesProcessed}帧`);
-        
-        // 如果已停止录制且没有更多待处理的帧，开始渲染
-        if (stopped && pendingFrames === 0 && !isRendering) {
-          isRendering = true;
-          console.log(`GIF录制完成，共捕获${framesProcessed}帧`);
-          gif.render();
-        }
-      };
-      
-      // 将当前canvas内容转换为数据URL并设置给图像
-      img.src = currentCanvas.toDataURL('image/png');
+      // 直接添加canvas到GIF
+      gif.addFrame(currentCanvas, { copy: true, delay: frameDelay });
+      framesProcessed++;
+      console.log(`已捕获第${framesProcessed}帧`);
 
       // 更新上次捕获时间
       lastCaptureTime = timestamp;
@@ -148,18 +130,15 @@ export const recordCanvasToGif = (
         animationFrameId = null;
       }
 
-      // 如果没有捕获任何帧且没有待处理的帧，返回错误
-      if (framesProcessed === 0 && pendingFrames === 0) {
+      // 如果没有捕获任何帧，返回错误
+      if (framesProcessed === 0) {
         rejectPromise(new Error("未捕获任何帧"));
         return resultPromise;
       }
 
-      // 如果还有待处理的帧，等待它们完成
-      if (pendingFrames === 0) {
-        isRendering = true;
-        console.log(`GIF录制完成，共捕获${framesProcessed}帧`);
-        gif.render();
-      }
+      isRendering = true;
+      console.log(`GIF录制完成，共捕获${framesProcessed}帧`);
+      gif.render();
       
       return resultPromise;
     },

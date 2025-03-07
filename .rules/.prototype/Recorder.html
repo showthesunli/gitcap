@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF Recorder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+        }
+        .panel-gradient {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+        .brand-gradient {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+        .preview-area {
+            transition: all 0.3s ease;
+        }
+        .drawer-trigger {
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+        }
+        .drawer-panel {
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+        }
+        .drawer-panel.closed {
+            transform: translateX(100%);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen font-sans overflow-x-hidden">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-black">GIF Recorder</h1>
+            <p class="text-black opacity-70">捕捉屏幕，创建流畅GIF动画</p>
+        </header>
+
+        <div class="flex flex-col lg:flex-row gap-6 relative">
+            <!-- 左侧预览区域 -->
+            <div class="preview-area flex-1 flex flex-col items-center justify-center">
+                <div class="relative w-full max-w-3xl aspect-video">
+                    <div class="w-full h-full rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-white/50 backdrop-blur-sm shadow-sm">
+                        <div class="text-center p-6">
+                            <span class="lucide lucide-video inline-block mb-4 text-black opacity-80" style="font-size: 48px;"></span>
+                            <p class="text-black mb-2">尚未捕捉屏幕</p>
+                            <p class="text-black opacity-60 text-sm">点击右侧"捕捉屏幕"按钮开始</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 调整大小的控制点 -->
+                    <div class="absolute bottom-0 right-0 w-5 h-5 bg-white border border-gray-300 rounded-full cursor-se-resize transform translate-x-1/2 translate-y-1/2 shadow-md"></div>
+                </div>
+                
+                <div class="mt-6 text-black text-sm flex items-center justify-center">
+                    <span class="lucide lucide-info inline-block mr-2 opacity-60" style="font-size: 16px;"></span>
+                    <span>您可以拖动右下角调整预览区域大小</span>
+                </div>
+            </div>
+
+            <!-- 右侧功能面板 -->
+            <div class="drawer-panel panel-gradient rounded-xl shadow-lg p-6 w-full lg:w-80 flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-black">录制控制</h2>
+                    <button class="lg:hidden p-2 text-black opacity-70 hover:opacity-100">
+                        <span class="lucide lucide-x" style="font-size: 20px;"></span>
+                    </button>
+                </div>
+
+                <!-- 功能按钮区 -->
+                <div class="space-y-4 mb-8">
+                    <button class="w-full py-3 px-4 brand-gradient text-white rounded-lg flex items-center justify-center shadow-md hover:shadow-lg transition-all">
+                        <span class="lucide lucide-monitor" style="font-size: 18px; margin-right: 8px;"></span>
+                        捕捉屏幕
+                    </button>
+                    
+                    <button class="w-full py-3 px-4 bg-white text-black border border-gray-200 rounded-lg flex items-center justify-center shadow-sm hover:shadow-md transition-all">
+                        <span class="lucide lucide-play" style="font-size: 18px; margin-right: 8px;"></span>
+                        开始录制
+                    </button>
+                    
+                    <button class="w-full py-3 px-4 bg-white text-black border border-gray-200 rounded-lg flex items-center justify-center shadow-sm hover:shadow-md transition-all opacity-50" disabled>
+                        <span class="lucide lucide-download" style="font-size: 18px; margin-right: 8px;"></span>
+                        下载GIF
+                    </button>
+                </div>
+
+                <!-- 参数设置区 -->
+                <div class="space-y-5">
+                    <h3 class="text-black font-medium">参数设置</h3>
+                    
+                    <div>
+                        <label class="block text-black text-sm mb-2">Canvas尺寸</label>
+                        <div class="flex gap-2">
+                            <div class="flex-1 relative">
+                                <input type="number" placeholder="宽度" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-black">
+                                <span class="absolute right-3 top-2 text-black opacity-60">px</span>
+                            </div>
+                            <span class="text-black">×</span>
+                            <div class="flex-1 relative">
+                                <input type="number" placeholder="高度" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-black">
+                                <span class="absolute right-3 top-2 text-black opacity-60">px</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-black text-sm mb-2">锁定比例</label>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" class="form-checkbox h-5 w-5 text-indigo-600 rounded">
+                            <span class="ml-2 text-black">保持长宽比</span>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-black text-sm mb-2">FPS帧率</label>
+                        <div class="flex items-center gap-4">
+                            <input type="range" min="1" max="60" value="24" class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none">
+                            <span class="text-black font-medium">24</span>
+                        </div>
+                        <p class="text-black opacity-60 text-sm mt-1">较高帧率生成更流畅的GIF，但文件更大</p>
+                    </div>
+                </div>
+                
+                <div class="mt-auto pt-6">
+                    <div class="text-black text-sm opacity-70 flex items-center">
+                        <span class="lucide lucide-info inline-block mr-2" style="font-size: 14px;"></span>
+                        <span>录制完成后可直接下载或分享GIF</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 移动端的抽屉触发器 -->
+            <button class="drawer-trigger fixed bottom-4 right-4 lg:hidden z-10 brand-gradient shadow-lg rounded-full p-4 text-white">
+                <span class="lucide lucide-settings" style="font-size: 24px;"></span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 仅UI设计，不实现功能
+        document.addEventListener('DOMContentLoaded', () => {
+            // 移动端抽屉功能的简单展示效果
+            const drawerTrigger = document.querySelector('.drawer-trigger');
+            const drawerPanel = document.querySelector('.drawer-panel');
+            const closeButton = drawerPanel.querySelector('button');
+            
+            drawerTrigger.addEventListener('click', () => {
+                drawerPanel.classList.toggle('closed');
+            });
+            
+            closeButton.addEventListener('click', () => {
+                drawerPanel.classList.add('closed');
+            });
+        });
+    </script>
+</body>
+</html>

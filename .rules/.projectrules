@@ -82,6 +82,28 @@
           }
         }
       ]
+    },
+    {
+      "name": "UI设计规范",
+      "rules": [
+        {
+          "name": "follow-recorder-prototype",
+          "description": "根据Recorder.html原型文件实现UI界面",
+          "level": "error",
+          "check": {
+            "require": ["遵循原型设计的布局和组件结构"],
+            "recommended": [
+              "使用与原型一致的梯度背景",
+              "实现相同的面板布局",
+              "保持与原型相似的UI组件风格"
+            ]
+          },
+          "example": {
+            "bad": "创建与原型不一致的UI结构或风格",
+            "good": "按照Recorder.html中的布局实现捕捉屏幕、录制控制和参数设置功能区"
+          }
+        }
+      ]
     }
   ]
 }

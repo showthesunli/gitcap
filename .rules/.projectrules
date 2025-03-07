@@ -9,7 +9,8 @@
           "level": "error",
           "check": {
             "require": ["vite.config.ts"],
-            "no": ["webpack.config.js", "rollup.config.js"]
+            "no": ["webpack.config.js", "rollup.config.js"],
+            "note": "推荐使用Vite 5.x版本"
           },
           "example": {
             "bad": "使用webpack或其他构建工具",
@@ -32,9 +33,16 @@
         {
           "name": "use-shadcn",
           "description": "使用shadcn作为UI组件库",
-          "level": "warning",
+          "level": "error",
           "check": {
-            "recommended": ["shadcn组件导入"]
+            "require": [
+              "shadcn组件导入",
+              "shadcn组件配置"
+            ],
+            "recommended": [
+              "shadcn主题定制",
+              "shadcn组件扩展"
+            ]
           },
           "example": {
             "bad": "从其他UI库导入组件",
@@ -47,7 +55,8 @@
           "level": "warning",
           "check": {
             "require": ["tailwind.config.js"],
-            "version": "^4.0.0"
+            "version": "^4.0.0",
+            "note": "如需升级版本，需先更新此规则"
           },
           "example": {
             "bad": "使用旧版本Tailwind或其他CSS框架",
@@ -59,7 +68,10 @@
           "description": "使用Zustand作为状态管理解决方案",
           "level": "error",
           "check": {
-            "require": ["zustand导入语句", "zustand store使用示例"],
+            "require": [
+              "zustand导入语句",
+              "zustand store使用示例"
+            ],
             "no": [
               "redux",
               "mobx",
@@ -67,7 +79,8 @@
               "zustand/vanilla",
               "zustand.context",
               "zustand/middleware"
-            ]
+            ],
+            "note": "需配合函数式编程风格使用"
           },
           "example": {
             "bad": [

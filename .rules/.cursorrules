@@ -20,7 +20,8 @@
               "higher-order-functions",
               "immutable-data",
               "arrow-functions"
-            ]
+            ],
+            "note": "与Zustand集成时需特别注意保持函数式风格"
           },
           "example": {
             "bad": "class Calculator { add(a, b) { return a + b; } }",
@@ -30,7 +31,7 @@
         {
           "name": "chinese-comments",
           "description": "所有注释必须使用中文书写",
-          "level": "warning",
+          "level": "error",
           "check": {
             "require": [
               "chinese-characters-in-comments"
@@ -55,7 +56,7 @@
               "i18n-functions",
               "chinese-console"
             ],
-            "note": "技术性字符串（如API请求字段、技术标识符）可豁免，仅限用户可见文本"
+            "note": "技术性字符串（如API请求字段、技术标识符）可豁免，仅限用户可见文本。未来如需国际化，可使用i18n解决方案"
           },
           "example": {
             "bad": "console.log('Error occurred'); alert('Save failed')",

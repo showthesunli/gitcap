@@ -7,8 +7,8 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 /**
  * 应用主组件
- * @remarks 使用Zustand管理全局状态，替代局部状态管理
- * @returns 应用主界面
+ * @remarks 使用Zustand管理全局状态，组织新的左右布局结构
+ * @returns 基于原型设计的GIF录制应用界面
  * @example
  * ```tsx
  * <App />
@@ -21,13 +21,18 @@ const App = () => {
   return (
     <ThemeProvider>
       <MainLayout>
+        {/* 
+          先传递EditorToolbar作为右侧控制面板
+          再传递CanvasContainer作为左侧预览区
+          顺序很重要，MainLayout会按顺序解构 
+        */}
         <EditorToolbar
           currentSize={canvasSize}
           onCanvasSizeChange={setCanvasSize}
         />
         <CanvasContainer {...canvasSize} />
       </MainLayout>
-      <Toaster richColors />
+      <Toaster richColors position="top-center" />
     </ThemeProvider>
   );
 }

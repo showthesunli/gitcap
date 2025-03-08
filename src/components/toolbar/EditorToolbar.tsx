@@ -14,14 +14,14 @@ interface EditorToolbarProps {
   onCanvasSizeChange: (size: { width: number; height: number }) => void;
 }
 
-export const EditorToolbar = ({ onCanvasSizeChange }: EditorToolbarProps) => {
+export const EditorToolbar = ({ currentSize, onCanvasSizeChange }: EditorToolbarProps) => {
   const [fps, setFps] = useState(10); // 默认 FPS 值为 10
   
   const { isCapturing, isRecording, handleScreenCapture, handleRecordGif } =
     useToolbarActions(onCanvasSizeChange, { fps });
 
   return (
-    <div className="panel-gradient rounded-xl shadow-lg p-6 w-full lg:w-80 flex flex-col">
+    <>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-black dark:text-white">录制控制</h2>
       </div>
@@ -58,7 +58,7 @@ export const EditorToolbar = ({ onCanvasSizeChange }: EditorToolbarProps) => {
         {/* 画布尺寸控制 */}
         <div>
           <label className="block text-black dark:text-white text-sm mb-2">Canvas尺寸</label>
-          <CanvasSizeControl />
+          <CanvasSizeControl currentSize={currentSize} onSizeChange={onCanvasSizeChange} />
         </div>
         
         {/* FPS 控制 */}
@@ -79,6 +79,6 @@ export const EditorToolbar = ({ onCanvasSizeChange }: EditorToolbarProps) => {
           <span>录制完成后可直接下载或分享GIF</span>
         </div>
       </div>
-    </div>
+    </>
   );
 };

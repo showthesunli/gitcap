@@ -39,18 +39,20 @@ export function MainLayout({ children }: MainLayoutProps) {
           </div>
           
           {/* 小屏幕时使用的抽屉组件 - 使用 lg:hidden 控制响应式显示 */}
-          <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen} className="lg:hidden">
-            <DrawerTrigger asChild>
-              <button className="fixed bottom-4 right-4 z-10 brand-gradient shadow-lg rounded-full p-4 text-white lg:hidden">
-                <Settings size={24} />
-              </button>
-            </DrawerTrigger>
-            <DrawerContent className="panel-gradient">
-              <div className="p-6">
-                {toolbar}
-              </div>
-            </DrawerContent>
-          </Drawer>
+          <div className="lg:hidden">
+            <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+              <DrawerTrigger asChild>
+                <button className="fixed bottom-4 right-4 z-10 brand-gradient shadow-lg rounded-full p-4 text-white">
+                  <Settings size={24} />
+                </button>
+              </DrawerTrigger>
+              <DrawerContent className="panel-gradient">
+                <div className="p-6">
+                  {toolbar}
+                </div>
+              </DrawerContent>
+            </Drawer>
+          </div>
         </div>
       </div>
     </div>

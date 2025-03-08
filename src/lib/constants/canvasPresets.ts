@@ -3,8 +3,8 @@
  * @remarks 定义了常用的画布尺寸配置，可在项目中复用
  */
 export const CANVAS_PRESETS = {
-  default: { width: 1080, height: 720 },
-  vertical: { width: 510, height: 720 },
+  default: { width: 500, height: 300 },
+  vertical: { width: 400, height: 600 },
   square: { width: 500, height: 500 },
 } as const;
 

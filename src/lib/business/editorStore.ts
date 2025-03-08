@@ -38,8 +38,8 @@ type EditorStore = {
 
 export const useEditorStore = create<EditorStore>((set, get) => ({
   canvasSize: {
-    width: 1080,
-    height: 720,
+    width: 500,
+    height: 300,
   },
   setCanvasSize: (size) => {
     const { isCapturing, isRecording } = get();

@@ -1,0 +1,52 @@
+import React, { useEffect, useRef } from "react";
+import { Image as KonvaImage } from "react-konva";
+
+interface VideoCaptureProps {
+  videoElement: HTMLVideoElement;
+  width: number;
+  height: number;
+  onImageRef: (node: any) => void;
+}
+
+/**
+ * 视频捕获组件
+ * @remarks 将视频流渲染到Konva画布上
+ * @param videoElement - HTML视频元素
+ * @param width - 画布宽度
+ * @param height - 画布高度
+ * @param onImageRef - 图像引用回调
+ * @returns Konva图像组件
+ */
+export const VideoCapture = ({
+  videoElement,
+  width,
+  height,
+  onImageRef,
+}: VideoCaptureProps) => {
+  const animationRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const updateVideoFrame = () => {
+      animationRef.current = requestAnimationFrame(updateVideoFrame);
+    };
+
+    updateVideoFrame();
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <KonvaImage
+      ref={onImageRef}
+      image={videoElement}
+      x={0}
+      y={0}
+      width={width}
+      height={height}
+    />
+  );
+};

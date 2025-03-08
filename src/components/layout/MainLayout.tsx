@@ -1,7 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
-import { Settings } from "lucide-react"; // 使用 lucide-react 的设置图标
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -10,9 +8,6 @@ interface MainLayoutProps {
 export function MainLayout({ children }: MainLayoutProps) {
   // 从children中提取组件
   const [toolbar, canvasContainer] = React.Children.toArray(children);
-  
-  // 只保留抽屉开关状态
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   return (
     <div className="gradient-bg min-h-screen font-sans overflow-x-hidden">
@@ -27,31 +22,15 @@ export function MainLayout({ children }: MainLayoutProps) {
           </div>
         </header>
 
-        <div className="flex flex-col lg:flex-row gap-6 relative">
+        <div className="flex flex-row gap-6 relative">
           {/* 左侧预览区域 */}
           <div className="preview-area flex-1 flex flex-col items-center justify-center">
             {canvasContainer}
           </div>
 
-          {/* 大屏幕时显示的常规面板 - 使用 hidden 和 lg:flex 控制响应式显示 */}
-          <div className="drawer-panel panel-gradient rounded-xl shadow-lg p-6 w-full lg:w-80 hidden lg:flex flex-col">
+          {/* 右侧面板 - 移除所有响应式类 */}
+          <div className="panel-gradient rounded-xl shadow-lg p-6 w-80 flex flex-col">
             {toolbar}
-          </div>
-          
-          {/* 小屏幕时使用的抽屉组件 - 使用 lg:hidden 控制响应式显示 */}
-          <div className="lg:hidden">
-            <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-              <DrawerTrigger asChild>
-                <button className="fixed bottom-4 right-4 z-10 brand-gradient shadow-lg rounded-full p-4 text-white">
-                  <Settings size={24} />
-                </button>
-              </DrawerTrigger>
-              <DrawerContent className="panel-gradient">
-                <div className="p-6">
-                  {toolbar}
-                </div>
-              </DrawerContent>
-            </Drawer>
           </div>
         </div>
       </div>

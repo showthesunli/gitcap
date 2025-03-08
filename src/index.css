@@ -139,43 +139,38 @@
     @apply min-h-full;
   }
   body {
-    @apply text-foreground;
+    @apply text-foreground gradient-bg;
+    background-attachment: fixed;
   }
-}
+  
+  /* 原型样式 */
+  .gradient-bg {
+    background: linear-gradient(135deg, var(--gradient-bg-from) 0%, var(--gradient-bg-to) 100%);
+  }
 
-/* 原型样式 */
-.gradient-bg {
-  background: linear-gradient(135deg, var(--gradient-bg-from) 0%, var(--gradient-bg-to) 100%);
-}
+  .panel-gradient {
+    background: linear-gradient(135deg, var(--panel-gradient-from) 0%, var(--panel-gradient-to) 100%);
+  }
 
-.panel-gradient {
-  background: linear-gradient(135deg, var(--panel-gradient-from) 0%, var(--panel-gradient-to) 100%);
-}
+  .brand-gradient {
+    background: linear-gradient(135deg, var(--brand-gradient-from) 0%, var(--brand-gradient-to) 100%);
+  }
 
-.brand-gradient {
-  background: linear-gradient(135deg, var(--brand-gradient-from) 0%, var(--brand-gradient-to) 100%);
-}
+  .preview-area {
+    transition: all 0.3s ease;
+  }
 
-.preview-area {
-  transition: all 0.3s ease;
-}
+  .drawer-trigger {
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+  }
 
-.drawer-trigger {
-  transform: translateX(0);
-  transition: transform 0.3s ease;
-}
+  .drawer-panel {
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+  }
 
-.drawer-panel {
-  transform: translateX(0);
-  transition: transform 0.3s ease;
-}
-
-.drawer-panel.closed {
-  transform: translateX(100%);
-}
-
-/* 遵循原型的背景设置 */
-body {
-  @apply gradient-bg;
-  background-attachment: fixed;
+  .drawer-panel.closed {
+    transform: translateX(100%);
+  }
 }

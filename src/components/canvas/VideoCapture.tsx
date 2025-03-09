@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import { Image as KonvaImage } from "react-konva";
+import Konva from "konva";
 
 interface VideoCaptureProps {
   videoElement: HTMLVideoElement;
   width: number;
   height: number;
-  onImageRef: (node: any) => void;
+  onImageRef: (node: Konva.Image) => void;
 }
 
 /**

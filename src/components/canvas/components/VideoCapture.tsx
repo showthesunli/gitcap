@@ -33,22 +33,8 @@ export const VideoCapture = ({
   onImageRef,
   onCaptureEnded,
 }: VideoCaptureProps) => {
-  if (!videoElement) return null;
-
   // 使用ref保存图像实例
-  const imageRef = useRef<Konva.Image>(null!);
-
-  // 计算视频实际尺寸和舞台尺寸的比例，保持视频原始比例
-  const videoWidth = videoElement.videoWidth || width;
-  const videoHeight = videoElement.videoHeight || height;
-
-  // 使用工具函数计算尺寸
-  const {
-    width: scaledWidth,
-    height: scaledHeight,
-    x,
-    y,
-  } = calculateVideoSize(videoWidth, videoHeight, width, height);
+  const imageRef = useRef<Konva.Image | null>(null);
 
   // 使用自定义钩子处理视频帧更新
   useVideoFrameUpdate(imageRef);
@@ -66,7 +52,7 @@ export const VideoCapture = ({
     onImageRef(node);
   };
 
-  // 新增: 监听视频轨道的ended事件
+  // 监听视频轨道的ended事件
   useEffect(() => {
     if (!videoElement || !videoElement.srcObject) return;
     
@@ -92,6 +78,21 @@ export const VideoCapture = ({
       videoTrack.removeEventListener('ended', handleTrackEnded);
     };
   }, [videoElement, onCaptureEnded]);
+
+  // 在所有hooks都调用后再进行条件返回
+  if (!videoElement) return null;
+
+  // 计算视频实际尺寸和舞台尺寸的比例，保持视频原始比例
+  const videoWidth = videoElement.videoWidth || width;
+  const videoHeight = videoElement.videoHeight || height;
+
+  // 使用工具函数计算尺寸
+  const {
+    width: scaledWidth,
+    height: scaledHeight,
+    x,
+    y,
+  } = calculateVideoSize(videoWidth, videoHeight, width, height);
 
   return (
     <KonvaImage

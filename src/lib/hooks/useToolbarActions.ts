@@ -8,6 +8,12 @@ import { useEditorStore } from "@/lib/business/editorStore";
 import { recordCanvasToGif, saveGifToFile } from "@/lib/business/exportGif";
 import { CANVAS_PRESETS, CanvasPresetKey } from "@/lib/constants/canvasPresets";
 
+// 定义GIF录制控制器的接口
+interface GifRecordingController {
+  stop: () => Promise<Blob>;
+  abort: () => void;
+}
+
 interface ToolbarActionOptions {
   fps?: number;
 }
@@ -26,7 +32,7 @@ export const useToolbarActions = (
     stageRef 
   } = useEditorStore();
   
-  const gifRecordingRef = useRef<any>(null);
+  const gifRecordingRef = useRef<GifRecordingController | null>(null);
 
   const handlePresetSelect = (preset: CanvasPresetKey) => {
     onCanvasSizeChange(CANVAS_PRESETS[preset]);

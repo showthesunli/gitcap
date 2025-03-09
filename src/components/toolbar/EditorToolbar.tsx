@@ -8,14 +8,12 @@ import { ToolButton } from "./ToolButton";
 import { CanvasSizeControl } from "./CanvasSizeControl";
 import { FpsControl } from "./FpsControl";
 import { useToolbarActions } from "@/lib/hooks/useToolbarActions";
-import { useEditorStore } from "@/lib/business/editorStore";
 
 interface EditorToolbarProps {
-  currentSize: { width: number; height: number };
   onCanvasSizeChange: (size: { width: number; height: number }) => void;
 }
 
-export const EditorToolbar = ({ currentSize, onCanvasSizeChange }: EditorToolbarProps) => {
+export const EditorToolbar = ({ onCanvasSizeChange }: EditorToolbarProps) => {
   const [fps, setFps] = useState(10); // 默认 FPS 值为 10
   
   const { isCapturing, isRecording, handleScreenCapture, handleRecordGif } =

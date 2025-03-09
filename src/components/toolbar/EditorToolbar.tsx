@@ -8,6 +8,7 @@ import { ToolButton } from "./ToolButton";
 import { CanvasSizeControl } from "./CanvasSizeControl";
 import { FpsControl } from "./FpsControl";
 import { useToolbarActions } from "@/lib/hooks/useToolbarActions";
+import { useEditorStore } from "@/lib/business/editorStore";
 
 interface EditorToolbarProps {
   currentSize: { width: number; height: number };
@@ -58,7 +59,7 @@ export const EditorToolbar = ({ currentSize, onCanvasSizeChange }: EditorToolbar
         {/* 画布尺寸控制 */}
         <div>
           <label className="block text-black dark:text-white text-sm mb-2">Canvas尺寸</label>
-          <CanvasSizeControl currentSize={currentSize} onSizeChange={onCanvasSizeChange} />
+          <CanvasSizeControl />
         </div>
         
         {/* FPS 控制 */}

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ComponentType } from "react";
 
 interface ToolButtonProps {
-  icon: ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string; size?: number }>;
   text: string;
   variant?: "outline" | "destructive" | "primary";
   onClick?: () => void;

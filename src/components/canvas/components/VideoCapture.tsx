@@ -37,7 +37,7 @@ export const VideoCapture = ({
   const imageRef = useRef<Konva.Image | null>(null);
 
   // 使用自定义钩子处理视频帧更新
-  useVideoFrameUpdate(imageRef);
+  useVideoFrameUpdate(imageRef as React.RefObject<Konva.Image>);
 
   // 使用自定义钩子处理鼠标滚轮缩放
   const handleWheel = useWheelZoom({

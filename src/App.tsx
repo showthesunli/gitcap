@@ -27,7 +27,6 @@ const App = () => {
           顺序很重要，MainLayout会按顺序解构 
         */}
         <EditorToolbar
-          currentSize={canvasSize}
           onCanvasSizeChange={setCanvasSize}
         />
         <CanvasContainer {...canvasSize} />

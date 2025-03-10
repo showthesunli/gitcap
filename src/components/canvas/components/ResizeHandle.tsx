@@ -1,11 +1,26 @@
+/**
+ * 调整大小手柄组件
+ * @remarks 用于调整画布大小的可拖动手柄
+ */
+
 import { cn } from "@/lib/utils";
 
 interface ResizeHandleProps {
+  /** 是否正在拖动中 */
   isDragging: boolean;
+  /** 是否禁用调整大小功能 */
   isDisabled: boolean;
+  /** 鼠标按下事件处理函数 */
   onMouseDown: (e: React.MouseEvent) => void;
 }
 
+/**
+ * 调整大小手柄组件
+ * @param isDragging - 是否正在拖动中
+ * @param isDisabled - 是否禁用调整大小功能
+ * @param onMouseDown - 鼠标按下事件处理函数
+ * @returns 可拖动的调整大小手柄组件
+ */
 export function ResizeHandle({ 
   isDragging, 
   isDisabled, 

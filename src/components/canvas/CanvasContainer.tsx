@@ -28,6 +28,13 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
     maxScale: 5,
     scaleBy: 1.1
   });
+
+  const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
+    setPosition({
+      x: e.target.x(),
+      y: e.target.y()
+    });
+  };
   
   useEffect(() => {
     if (stageRef.current) {
@@ -150,6 +157,7 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
               scale={scale}
               x={position.x}
               y={position.y}
+              onDragEnd={handleDragEnd}
             />
           </Layer>
         </Stage>

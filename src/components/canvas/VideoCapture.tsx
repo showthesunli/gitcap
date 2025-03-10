@@ -7,6 +7,11 @@ interface VideoCaptureProps {
   width: number;
   height: number;
   onImageRef: (node: Konva.Image) => void;
+  onCaptureEnded?: () => void;
+  scale?: number;
+  x?: number;
+  y?: number;
+  onDragEnd?: (e: Konva.KonvaEventObject<DragEvent>) => void;
 }
 
 /**
@@ -16,6 +21,11 @@ interface VideoCaptureProps {
  * @param width - 画布宽度
  * @param height - 画布高度
  * @param onImageRef - 图像引用回调
+ * @param onCaptureEnded - 捕获结束回调
+ * @param scale - 缩放比例
+ * @param x - X坐标位置
+ * @param y - Y坐标位置
+ * @param onDragEnd - 拖动结束回调
  * @returns Konva图像组件
  */
 export const VideoCapture = ({
@@ -23,6 +33,11 @@ export const VideoCapture = ({
   width,
   height,
   onImageRef,
+  onCaptureEnded,
+  scale = 1,
+  x = 0,
+  y = 0,
+  onDragEnd,
 }: VideoCaptureProps) => {
   const animationRef = useRef<number | null>(null);
 
@@ -44,10 +59,14 @@ export const VideoCapture = ({
     <KonvaImage
       ref={onImageRef}
       image={videoElement}
-      x={0}
-      y={0}
+      x={x}
+      y={y}
       width={width}
       height={height}
+      scaleX={scale}
+      scaleY={scale}
+      draggable={true}
+      onDragEnd={onDragEnd}
     />
   );
 };

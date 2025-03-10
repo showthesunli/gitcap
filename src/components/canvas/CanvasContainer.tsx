@@ -1,5 +1,6 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, RefObject } from "react";
 import { Stage, Layer } from "react-konva";
+import Konva from "konva";
 import { cn } from "@/lib/utils";
 import { useScreenCapture } from "./hooks/useScreenCapture";
 import { useKonvaImageUpdater } from "./hooks/useKonvaImageUpdater";
@@ -30,11 +31,11 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
   const { scale, position, handleDragEnd } = useVideoPositioning({
     videoElement,
     canvasWidth: width,
-    canvasHeight: height
+    canvasHeight: height,
   });
 
   const { isDragging, resizeTooltip, handleResizeDragStart } = useCanvasResize({
-    stageRef
+    stageRef: stageRef as RefObject<Konva.Stage>,
   });
 
   const { handleWheel } = useWheelZoom({
@@ -97,7 +98,7 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
           </Layer>
         </Stage>
 
-        <ResizeHandle 
+        <ResizeHandle
           isDragging={isDragging}
           isDisabled={isCapturing || isRecording}
           onMouseDown={handleResizeDragStart}

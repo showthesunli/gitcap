@@ -1,18 +1,7 @@
-/**
- * @file VideoCapture.tsx
- * @description 视频捕获的Konva图像组件，支持鼠标滚轮缩放
- */
-
+import { useEffect, useRef } from "react";
 import { Image as KonvaImage } from "react-konva";
 import Konva from "konva";
-import { useRef, useEffect } from "react";
-import { calculateVideoSize } from "@/lib/utils/videoUtils";
-import { useVideoFrameUpdate } from "@/lib/hooks/useVideoFrameUpdate";
-import { useWheelZoom } from "@/lib/hooks/useWheelZoom";
 
-/**
- * 渲染视频捕获的Konva图像组件的属性
- */
 interface VideoCaptureProps {
   videoElement: HTMLVideoElement | null;
   width: number;
@@ -23,8 +12,13 @@ interface VideoCaptureProps {
 }
 
 /**
- * 渲染视频捕获的Konva图像组件
- * @remarks 将视频元素渲染为Konva图像，支持拖拽和鼠标滚轮缩放
+ * 视频捕获组件
+ * @remarks 将视频流渲染到Konva画布上
+ * @param videoElement - HTML视频元素
+ * @param width - 画布宽度
+ * @param height - 画布高度
+ * @param onImageRef - 图像引用回调
+ * @returns Konva图像组件
  */
 export const VideoCapture = ({
   videoElement,
@@ -33,77 +27,71 @@ export const VideoCapture = ({
   onImageRef,
   onCaptureEnded,
 }: VideoCaptureProps) => {
-  // 使用ref保存图像实例
   const imageRef = useRef<Konva.Image | null>(null);
+  const animationRef = useRef<number | null>(null);
 
-  // 使用自定义钩子处理视频帧更新
-  useVideoFrameUpdate(imageRef as React.RefObject<Konva.Image>);
-
-  // 使用自定义钩子处理鼠标滚轮缩放
-  const handleWheel = useWheelZoom({
-    minScale: 0.1,
-    maxScale: 10,
-    scaleBy: 1.1,
-  });
-
-  // 处理ref的回调函数
-  const handleRef = (node: Konva.Image) => {
-    imageRef.current = node;
-    onImageRef(node);
-  };
-
-  // 监听视频轨道的ended事件
   useEffect(() => {
-    if (!videoElement || !videoElement.srcObject) return;
-    
-    const stream = videoElement.srcObject as MediaStream;
-    const videoTracks = stream.getVideoTracks();
-    
-    if (videoTracks.length === 0) return;
-    
-    const videoTrack = videoTracks[0];
-    
-    // 添加轨道结束事件监听器
-    const handleTrackEnded = () => {
-      console.log("视频轨道已结束 - 从VideoCapture组件中处理");
+    // 如果没有视频元素，则不启动动画循环
+    if (!videoElement) {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+      return;
+    }
+
+    // 监听视频结束事件
+    const handleVideoEnded = () => {
       if (onCaptureEnded) {
         onCaptureEnded();
       }
     };
-    
-    videoTrack.addEventListener('ended', handleTrackEnded);
-    
-    // 清理函数
+
+    videoElement.addEventListener('ended', handleVideoEnded);
+
+    const updateVideoFrame = () => {
+      // 如果图像引用存在，强制更新图层
+      if (imageRef.current) {
+        // 获取图像所在的图层并更新
+        const layer = imageRef.current.getLayer();
+        if (layer) {
+          layer.batchDraw();
+        }
+      }
+      
+      // 继续请求下一帧
+      animationRef.current = requestAnimationFrame(updateVideoFrame);
+    };
+
+    // 启动动画循环
+    updateVideoFrame();
+
     return () => {
-      videoTrack.removeEventListener('ended', handleTrackEnded);
+      // 清理
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      videoElement.removeEventListener('ended', handleVideoEnded);
     };
   }, [videoElement, onCaptureEnded]);
 
-  // 在所有hooks都调用后再进行条件返回
+  // 保存图像引用
+  const handleImageRef = (node: Konva.Image) => {
+    imageRef.current = node;
+    onImageRef(node);
+  };
+
+  // 如果没有视频元素，不渲染任何内容
   if (!videoElement) return null;
-
-  // 计算视频实际尺寸和舞台尺寸的比例，保持视频原始比例
-  const videoWidth = videoElement.videoWidth || width;
-  const videoHeight = videoElement.videoHeight || height;
-
-  // 使用工具函数计算尺寸
-  const {
-    width: scaledWidth,
-    height: scaledHeight,
-    x,
-    y,
-  } = calculateVideoSize(videoWidth, videoHeight, width, height);
 
   return (
     <KonvaImage
+      ref={handleImageRef}
       image={videoElement}
-      width={scaledWidth}
-      height={scaledHeight}
-      draggable={true}
-      ref={handleRef}
-      onWheel={handleWheel}
-      x={x}
-      y={y}
+      x={0}
+      y={0}
+      width={width}
+      height={height}
     />
   );
 };

@@ -29,7 +29,7 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
     scaleBy: 1.1
   });
 
-  const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
+  const handleDragEnd = (e: Konva.KonvaEventObject<MouseEvent>) => {
     setPosition({
       x: e.target.x(),
       y: e.target.y()

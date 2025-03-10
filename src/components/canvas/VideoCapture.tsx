@@ -11,7 +11,7 @@ interface VideoCaptureProps {
   scale?: number;
   x?: number;
   y?: number;
-  onDragEnd?: (e: Konva.KonvaEventObject<DragEvent>) => void;
+  onDragEnd?: (e: Konva.KonvaEventObject<MouseEvent>) => void;
 }
 
 /**

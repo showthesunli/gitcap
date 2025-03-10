@@ -1,3 +1,8 @@
+/**
+ * 画布容器组件
+ * @remarks 负责管理和渲染屏幕捕获的主画布区域，包括视频显示、调整大小和交互功能
+ */
+
 import { useRef, useEffect, RefObject } from "react";
 import { Stage, Layer } from "react-konva";
 import Konva from "konva";
@@ -18,32 +23,44 @@ import { EmptyCanvasOverlay } from "./components/EmptyCanvasOverlay";
 import { ResizeTooltip } from "./components/ResizeTooltip";
 
 interface CanvasContainerProps {
+  /** 画布宽度 */
   width: number;
+  /** 画布高度 */
   height: number;
 }
 
+/**
+ * 画布容器组件
+ * @param width - 画布宽度
+ * @param height - 画布高度
+ * @returns 完整的画布容器，包含视频显示、调整控件和提示信息
+ */
 export function CanvasContainer({ width, height }: CanvasContainerProps) {
   const { videoElement } = useScreenCapture();
   const { handleImageRef } = useKonvaImageUpdater(videoElement);
   const { setStageRef, isCapturing, isRecording } = useEditorStore();
   const stageRef = useRef<Konva.Stage>(null);
 
+  // 处理视频在画布中的定位和缩放
   const { scale, position, handleDragEnd } = useVideoPositioning({
     videoElement,
     canvasWidth: width,
     canvasHeight: height,
   });
 
+  // 处理画布大小调整功能
   const { isDragging, resizeTooltip, handleResizeDragStart } = useCanvasResize({
     stageRef: stageRef as RefObject<Konva.Stage>,
   });
 
+  // 处理鼠标滚轮缩放功能
   const { handleWheel } = useWheelZoom({
     minScale: 0.1,
     maxScale: 5,
     scaleBy: 1.1,
   });
 
+  // 将Stage引用存储到全局状态
   useEffect(() => {
     if (stageRef.current) {
       setStageRef(stageRef.current);
@@ -54,6 +71,9 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
     };
   }, [setStageRef]);
 
+  /**
+   * 处理屏幕捕获结束事件
+   */
   const onCaptureEnded = () => {
     console.log("屏幕捕获已结束");
   };

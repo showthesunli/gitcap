@@ -24,14 +24,9 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   
   const { handleWheel } = useWheelZoom({
-    onZoom: (newScale, newPosition) => {
-      setScale(newScale);
-      setPosition(newPosition);
-    },
-    initialScale: scale,
-    initialPosition: position,
     minScale: 0.1,
     maxScale: 5,
+    scaleBy: 1.1
   });
   
   useEffect(() => {
@@ -130,7 +125,6 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
           maxWidth: "100%",
           maxHeight: "100%",
         }}
-        onWheel={handleWheel}
       >
         <Stage
           width={width}
@@ -144,6 +138,7 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
             "transition-all duration-300 hover:border-primary/50"
           )}
           ref={stageRef}
+          onWheel={handleWheel}
         >
           <Layer>
             <VideoCapture

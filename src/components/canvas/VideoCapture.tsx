@@ -4,13 +4,15 @@
  */
 
 import React, { Suspense } from "react";
+import { Rect } from "react-konva"; // 导入 Konva 的 Rect 组件
 
 // 使用类型导入避免加载实际的模块
 import type { VideoCaptureProps } from "./VideoCaptureImpl";
 
-// 创建一个加载提示组件
+// 创建一个符合Konva要求的加载提示组件
 const VideoCaptureLoading = () => {
-  return <div style={{ display: "none" }}>加载视频捕获组件...</div>;
+  // 使用 Konva 支持的 Rect 组件代替 div
+  return <Rect width={0} height={0} opacity={0} />;
 };
 
 // 动态导入实际的实现组件

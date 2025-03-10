@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { Stage, Layer } from "react-konva";
 import { cn } from "@/lib/utils";
 import { useScreenCapture } from "./hooks/useScreenCapture";
@@ -74,7 +74,7 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
     e.preventDefault();
   };
 
-  const handleResizeDragMove = (e: MouseEvent) => {
+  const handleResizeDragMove = useCallback((e: MouseEvent) => {
     if (!isDragging) return;
     
     const container = stageRef.current?.container();
@@ -82,8 +82,8 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
     
     const rect = container.getBoundingClientRect();
     
-    let newWidth = Math.max(100, Math.round(e.clientX - rect.left));
-    let newHeight = Math.max(100, Math.round(e.clientY - rect.top));
+    const newWidth = Math.max(100, Math.round(e.clientX - rect.left));
+    const newHeight = Math.max(100, Math.round(e.clientY - rect.top));
     
     let finalSize;
     if (aspectRatioLocked) {
@@ -94,7 +94,7 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
     
     setResizeTooltip(`${finalSize.width} × ${finalSize.height}`);
     setCanvasSize(finalSize);
-  };
+  }, [isDragging, stageRef, aspectRatioLocked, resizeWithAspectRatio, setResizeTooltip, setCanvasSize]);
 
   const handleResizeDragEnd = () => {
     setIsDragging(false);
@@ -115,7 +115,7 @@ export function CanvasContainer({ width, height }: CanvasContainerProps) {
       window.removeEventListener('mousemove', moveHandler);
       window.removeEventListener('mouseup', upHandler);
     };
-  }, [isDragging]);
+  }, [isDragging, handleResizeDragMove]);
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-4">

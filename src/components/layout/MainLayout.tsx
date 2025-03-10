@@ -15,8 +15,12 @@ export function MainLayout({ children }: MainLayoutProps) {
         <header className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-black dark:text-white">GIF Recorder</h1>
-              <p className="text-black dark:text-white opacity-70">捕捉屏幕，创建流畅GIF动画</p>
+              <h1 className="text-3xl font-bold text-black dark:text-white">
+                GIF Caputre
+              </h1>
+              <p className="text-black dark:text-white opacity-70">
+                捕捉屏幕，创建流畅GIF动画
+              </p>
             </div>
             <ThemeToggle />
           </div>

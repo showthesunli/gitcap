@@ -23,6 +23,7 @@ export const VideoCapture = ({
   scale = 1,
   x = 0,
   y = 0,
+  onDragEnd,
 }: VideoCaptureProps) => {
   const imageRef = useRef<Konva.Image | null>(null);
   const animationRef = useRef<number | null>(null);
@@ -84,7 +85,7 @@ export const VideoCapture = ({
       width={videoWidth * scale}
       height={videoHeight * scale}
       draggable={true}
-      onDragEnd={onCaptureEnded}
+      onDragEnd={onDragEnd}
     />
   );
 };

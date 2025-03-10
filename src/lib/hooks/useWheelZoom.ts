@@ -16,11 +16,7 @@ export const useWheelZoom = (options?: {
   maxScale?: number;
   scaleBy?: number;
 }) => {
-  const { 
-    minScale = 0.1, 
-    maxScale = 10, 
-    scaleBy = 1.1 
-  } = options || {};
+  const { minScale = 0.1, maxScale = 10, scaleBy = 1.1 } = options || {};
 
   /**
    * 处理鼠标滚轮事件
@@ -29,13 +25,13 @@ export const useWheelZoom = (options?: {
   const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
     // 阻止默认行为（页面滚动）
     e.evt.preventDefault();
-    
+
     const image = e.target as Konva.Image;
     if (!image) return;
 
     const stage = image.getStage();
     if (!stage) return;
-    
+
     // 获取当前缩放值
     const oldScale = image.scaleX();
 
@@ -51,7 +47,7 @@ export const useWheelZoom = (options?: {
 
     // 确定缩放方向：向上滚动为放大，向下滚动为缩小
     const newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
-    
+
     // 限制缩放范围，防止过度缩放或缩小
     const limitedScale = Math.max(minScale, Math.min(newScale, maxScale));
 
@@ -63,12 +59,12 @@ export const useWheelZoom = (options?: {
       x: pointer.x - mousePointTo.x * limitedScale,
       y: pointer.y - mousePointTo.y * limitedScale,
     };
-    
+
     image.position(newPos);
-    
+
     // 重绘图层
     image.getLayer()?.batchDraw();
   };
 
-  return handleWheel;
+  return { handleWheel };
 };

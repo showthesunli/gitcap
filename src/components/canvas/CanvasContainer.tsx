@@ -3,7 +3,7 @@ import { Stage, Layer } from "react-konva";
 import { cn } from "@/lib/utils";
 import { useScreenCapture } from "./hooks/useScreenCapture";
 import { useKonvaImageUpdater } from "./hooks/useKonvaImageUpdater";
-import { VideoCapture } from "@/components/canvas/components/VideoCapture";
+import { VideoCapture } from "@/components/canvas/VideoCapture";
 import { useEditorStore } from "@/lib/business/editorStore";
 import Konva from "konva";
 import { useWheelZoom } from "@/lib/hooks/useWheelZoom";

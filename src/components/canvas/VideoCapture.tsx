@@ -14,20 +14,6 @@ interface VideoCaptureProps {
   onDragEnd?: (e: Konva.KonvaEventObject<MouseEvent>) => void;
 }
 
-/**
- * 视频捕获组件
- * @remarks 将视频流渲染到Konva画布上
- * @param videoElement - HTML视频元素
- * @param width - 画布宽度
- * @param height - 画布高度
- * @param onImageRef - 图像引用回调
- * @param onCaptureEnded - 捕获结束回调
- * @param scale - 缩放比例
- * @param x - X坐标位置
- * @param y - Y坐标位置
- * @param onDragEnd - 拖动结束回调
- * @returns Konva图像组件
- */
 export const VideoCapture = ({
   videoElement,
   width,
@@ -37,12 +23,35 @@ export const VideoCapture = ({
   scale = 1,
   x = 0,
   y = 0,
-  onDragEnd,
 }: VideoCaptureProps) => {
+  const imageRef = useRef<Konva.Image | null>(null);
   const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
+    if (!videoElement) {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+      return;
+    }
+
+    const handleVideoEnded = () => {
+      if (onCaptureEnded) {
+        onCaptureEnded();
+      }
+    };
+
+    videoElement.addEventListener("ended", handleVideoEnded);
+
     const updateVideoFrame = () => {
+      if (imageRef.current) {
+        const layer = imageRef.current.getLayer();
+        if (layer) {
+          layer.batchDraw();
+        }
+      }
+
       animationRef.current = requestAnimationFrame(updateVideoFrame);
     };
 
@@ -52,25 +61,30 @@ export const VideoCapture = ({
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
+      videoElement.removeEventListener("ended", handleVideoEnded);
     };
-  }, []);
+  }, [videoElement, onCaptureEnded]);
 
-  if (!videoElement) {
-    return null;
-  }
+  const handleImageRef = (node: Konva.Image) => {
+    imageRef.current = node;
+    onImageRef(node);
+  };
+
+  if (!videoElement) return null;
+
+  const videoWidth = videoElement.videoWidth || width;
+  const videoHeight = videoElement.videoHeight || height;
 
   return (
     <KonvaImage
-      ref={onImageRef}
+      ref={handleImageRef}
       image={videoElement}
       x={x}
       y={y}
-      width={width}
-      height={height}
-      scaleX={scale}
-      scaleY={scale}
+      width={videoWidth * scale}
+      height={videoHeight * scale}
       draggable={true}
-      onDragEnd={onDragEnd}
+      onDragEnd={onCaptureEnded}
     />
   );
 };

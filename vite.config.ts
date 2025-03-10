@@ -18,9 +18,9 @@ export default defineConfig({
           // 分离Konva相关库
           konva: ['konva', 'react-konva'],
           // 分离React相关库
-          react: ['react', 'react-dom', 'react-router-dom'],
-          // 分离其他大型UI库（如果有的话）
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-slider', 'lucide-react'],
+          react: ['react', 'react-dom']
+          // 如果需要分离其他库，请确保它们已安装
+          // ui: ['lucide-react'] // 仅保留确认已安装的库
         }
       }
     }

@@ -3,7 +3,7 @@ import { Image as KonvaImage } from "react-konva";
 import Konva from "konva";
 
 interface VideoCaptureProps {
-  videoElement: HTMLVideoElement;
+  videoElement: HTMLVideoElement | null;
   width: number;
   height: number;
   onImageRef: (node: Konva.Image) => void;
@@ -54,6 +54,10 @@ export const VideoCapture = ({
       }
     };
   }, []);
+
+  if (!videoElement) {
+    return null;
+  }
 
   return (
     <KonvaImage

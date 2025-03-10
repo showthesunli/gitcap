@@ -4,7 +4,6 @@
  */
 
 import React, { Suspense } from "react";
-import type Konva from "konva";
 
 // 使用类型导入避免加载实际的模块
 import type { VideoCaptureProps } from "./VideoCaptureImpl";

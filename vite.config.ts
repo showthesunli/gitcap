@@ -11,4 +11,18 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // 分离Konva相关库
+          konva: ['konva', 'react-konva'],
+          // 分离React相关库
+          react: ['react', 'react-dom', 'react-router-dom'],
+          // 分离其他大型UI库（如果有的话）
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-slider', 'lucide-react'],
+        }
+      }
+    }
+  }
 });

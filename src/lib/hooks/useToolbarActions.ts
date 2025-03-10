@@ -8,22 +8,41 @@ import { useEditorStore } from "@/lib/business/editorStore";
 import { recordCanvasToGif, saveGifToFile } from "@/lib/business/exportGif";
 import { CANVAS_PRESETS, CanvasPresetKey } from "@/lib/constants/canvasPresets";
 
-// 定义GIF录制控制器的接口
+/**
+ * GIF录制控制器接口
+ * @remarks 定义了GIF录制过程中需要的控制方法
+ */
 interface GifRecordingController {
+  /** 停止录制并获取GIF Blob数据 */
   stop: () => Promise<Blob>;
+  /** 中止录制过程 */
   abort: () => void;
 }
 
+/**
+ * 工具栏动作选项接口
+ * @remarks 定义工具栏操作的配置选项
+ */
 interface ToolbarActionOptions {
+  /** 每秒帧数，影响GIF录制质量和文件大小 */
   fps?: number;
 }
 
+/**
+ * 工具栏动作钩子函数
+ * @remarks 提供工具栏所需的各种交互动作和状态
+ * @param onCanvasSizeChange - 画布尺寸变化回调函数
+ * @param options - 工具栏配置选项
+ * @returns 返回工具栏状态和动作函数集合
+ */
 export const useToolbarActions = (
   onCanvasSizeChange: (size: { width: number; height: number }) => void,
   options: ToolbarActionOptions = {}
 ) => {
+  /** 设置默认fps值为10 */
   const { fps = 10 } = options;
   
+  /** 从编辑器状态获取必要的状态和方法 */
   const { 
     isCapturing, 
     setIsCapturing, 
@@ -32,16 +51,29 @@ export const useToolbarActions = (
     stageRef 
   } = useEditorStore();
   
+  /** 存储当前GIF录制控制器的引用 */
   const gifRecordingRef = useRef<GifRecordingController | null>(null);
 
+  /**
+   * 处理预设尺寸选择
+   * @param preset - 预设尺寸键名
+   */
   const handlePresetSelect = (preset: CanvasPresetKey) => {
     onCanvasSizeChange(CANVAS_PRESETS[preset]);
   };
 
+  /**
+   * 处理屏幕捕获切换
+   * @remarks 切换屏幕捕获的开启/关闭状态
+   */
   const handleScreenCapture = () => {
     setIsCapturing(!isCapturing);
   };
 
+  /**
+   * 处理GIF录制
+   * @remarks 开始或停止GIF录制过程
+   */
   const handleRecordGif = async () => {
     // 如果未处于屏幕捕获状态，不能录制
     if (!isCapturing) {
@@ -51,6 +83,7 @@ export const useToolbarActions = (
       return;
     }
     
+    /** 检查画布引用是否存在 */
     if (!stageRef) {
       toast.error("录制失败", {
         description: "无法获取画布元素"
@@ -66,11 +99,11 @@ export const useToolbarActions = (
       });
 
       try {
-        // 使用当前设置的fps进行录制
+        /** 使用当前设置的fps参数进行录制 */
         gifRecordingRef.current = recordCanvasToGif(stageRef, {
           fps,  // 使用传入的fps值
-          quality: 10,
-          showProgress: true,
+          quality: 10, // 质量设置，1-30，越小质量越高
+          showProgress: true, // 显示进度
           onProgress: (progress) => {
             console.log(`处理进度: ${Math.round(progress * 100)}%`);
           },
@@ -86,6 +119,7 @@ export const useToolbarActions = (
       // 停止录制
       setIsRecording(false);
       
+      /** 检查录制控制器是否存在 */
       if (!gifRecordingRef.current) {
         return;
       }
@@ -95,10 +129,10 @@ export const useToolbarActions = (
       });
       
       try {
-        // 停止录制并等待GIF生成完成
+        /** 停止录制并等待GIF生成完成 */
         const gifBlob = await gifRecordingRef.current.stop();
         
-        // 保存GIF文件
+        /** 保存GIF文件到本地，使用时间戳命名 */
         saveGifToFile(gifBlob, `canvas-recording-${new Date().getTime()}.gif`);
         
         toast.success("录制完成", {
@@ -110,12 +144,16 @@ export const useToolbarActions = (
           description: "生成GIF时出错"
         });
       } finally {
+        /** 清理录制控制器引用 */
         gifRecordingRef.current = null;
       }
     }
   };
 
-  // 组件卸载时清理录制
+  /** 
+   * 组件卸载时清理录制
+   * @remarks 确保在组件卸载时中止任何正在进行的录制过程
+   */
   useEffect(() => {
     return () => {
       if (gifRecordingRef.current) {
@@ -124,6 +162,7 @@ export const useToolbarActions = (
     };
   }, []);
 
+  /** 返回工具栏所需的状态和方法 */
   return {
     isCapturing,
     isRecording,

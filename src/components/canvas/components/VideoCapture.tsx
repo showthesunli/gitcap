@@ -11,6 +11,7 @@ interface VideoCaptureProps {
   scale?: number;
   x?: number;
   y?: number;
+  onDragEnd?: (e: Konva.KonvaEventObject<MouseEvent>) => void;
 }
 
 export const VideoCapture = ({
@@ -41,7 +42,7 @@ export const VideoCapture = ({
       }
     };
 
-    videoElement.addEventListener('ended', handleVideoEnded);
+    videoElement.addEventListener("ended", handleVideoEnded);
 
     const updateVideoFrame = () => {
       if (imageRef.current) {
@@ -50,7 +51,7 @@ export const VideoCapture = ({
           layer.batchDraw();
         }
       }
-      
+
       animationRef.current = requestAnimationFrame(updateVideoFrame);
     };
 
@@ -60,7 +61,7 @@ export const VideoCapture = ({
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      videoElement.removeEventListener('ended', handleVideoEnded);
+      videoElement.removeEventListener("ended", handleVideoEnded);
     };
   }, [videoElement, onCaptureEnded]);
 

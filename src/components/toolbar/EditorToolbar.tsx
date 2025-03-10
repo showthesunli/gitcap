@@ -42,12 +42,14 @@ export const EditorToolbar = ({ onCanvasSizeChange }: EditorToolbarProps) => {
           disabled={!isCapturing} // 只有在捕获状态才能录制
         />
         
+        {/* 下载功能暂未实现
         <ToolButton
           icon={Download}
           text="下载GIF"
           variant="outline"
           disabled={true} // 先默认禁用，直到有GIF可下载
         />
+        */}
       </div>
 
       {/* 参数设置区 */}

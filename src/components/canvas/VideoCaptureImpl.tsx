@@ -126,6 +126,8 @@ export const VideoCaptureImpl = ({
       scaleY={scale}
       draggable={true}
       onDragEnd={onDragEnd}
+      offsetX={0}
+      offsetY={0}
     />
   );
 };

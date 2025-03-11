@@ -43,7 +43,7 @@ export function useVideoPositioning({
       // 取最小值确保视频完全显示在画布内，且不超过原始大小
       const newScale = Math.min(scaleX, scaleY, 1);
 
-      // 计算居中位置
+      // 计算居中位置 - 确保在任何缩放级别下都居中显示
       const newX = (canvasWidth - videoWidth) / 2;
       const newY = (canvasHeight - videoHeight) / 2;
 

@@ -48,7 +48,7 @@ export const recordCanvasToGif = (
   let isRendering = false;
   let resolvePromise: (blob: Blob) => void;
   let rejectPromise: (error: Error) => void;
-  let animationFrameId: number | null = null;
+  let captureInterval: number | null = null;
 
   // 创建结果Promise
   const resultPromise = new Promise<Blob>((resolve, reject) => {
@@ -77,44 +77,26 @@ export const recordCanvasToGif = (
     });
   }
 
-  // 上次捕获时间
-  let lastCaptureTime = 0;
-
-  // 帧捕获函数 - 使用requestAnimationFrame实现更平滑的帧捕获
-  const captureFrame = (timestamp: number) => {
+  // 使用setInterval代替requestAnimationFrame，确保在浏览器后台时也能捕获帧
+  captureInterval = setInterval(() => {
     if (stopped || isRendering) {
       return;
     }
 
-    // 计算自上次捕获以来的时间
-    if (!lastCaptureTime) lastCaptureTime = timestamp;
-    const elapsed = timestamp - lastCaptureTime;
+    // 强制更新所有图层以确保最新的视频帧被渲染
+    stage.getLayers().forEach(layer => layer.batchDraw());
+    
+    // 为当前帧创建新的canvas
+    const currentCanvas = stage.toCanvas({
+      pixelRatio: 1, // 使用1:1的像素比以避免尺寸问题
+    });
 
-    // 如果经过了足够的时间，捕获一帧
-    if (elapsed >= frameDelay) {
-      // 强制更新所有图层以确保最新的视频帧被渲染
-      stage.getLayers().forEach(layer => layer.batchDraw());
-      
-      // 为当前帧创建新的canvas
-      const currentCanvas = stage.toCanvas({
-        pixelRatio: 1, // 使用1:1的像素比以避免尺寸问题
-      });
+    // 直接添加canvas到GIF
+    gif.addFrame(currentCanvas, { copy: true, delay: frameDelay });
+    framesProcessed++;
+    console.log(`已捕获第${framesProcessed}帧`);
 
-      // 直接添加canvas到GIF
-      gif.addFrame(currentCanvas, { copy: true, delay: frameDelay });
-      framesProcessed++;
-      console.log(`已捕获第${framesProcessed}帧`);
-
-      // 更新上次捕获时间
-      lastCaptureTime = timestamp;
-    }
-
-    // 调度下一帧捕获
-    animationFrameId = requestAnimationFrame(captureFrame);
-  };
-
-  // 开始捕获
-  animationFrameId = requestAnimationFrame(captureFrame);
+  }, frameDelay);
 
   return {
     // 停止录制并获取结果
@@ -125,9 +107,9 @@ export const recordCanvasToGif = (
 
       stopped = true;
 
-      if (animationFrameId !== null) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
+      if (captureInterval !== null) {
+        clearInterval(captureInterval);
+        captureInterval = null;
       }
 
       // 如果没有捕获任何帧，返回错误
@@ -146,9 +128,9 @@ export const recordCanvasToGif = (
     // 中止录制
     abort: () => {
       stopped = true;
-      if (animationFrameId !== null) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
+      if (captureInterval !== null) {
+        clearInterval(captureInterval);
+        captureInterval = null;
       }
       rejectPromise(new Error("GIF录制已中止"));
     },

@@ -48,7 +48,7 @@ export const recordCanvasToGif = (
   let isRendering = false;
   let resolvePromise: (blob: Blob) => void;
   let rejectPromise: (error: Error) => void;
-  let captureInterval: number | null = null;
+  let captureInterval: ReturnType<typeof setInterval> | null = null;
 
   // 创建结果Promise
   const resultPromise = new Promise<Blob>((resolve, reject) => {

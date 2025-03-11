@@ -44,8 +44,8 @@ export function useVideoPositioning({
       const newScale = Math.min(scaleX, scaleY, 1);
 
       // 计算居中位置
-      const newX = (canvasWidth - videoWidth * newScale) / 2;
-      const newY = (canvasHeight - videoHeight * newScale) / 2;
+      const newX = (canvasWidth - videoWidth) / 2;
+      const newY = (canvasHeight - videoHeight) / 2;
 
       setScale(newScale);
       setPosition({ x: newX, y: newY });

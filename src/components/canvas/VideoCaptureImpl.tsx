@@ -120,8 +120,10 @@ export const VideoCaptureImpl = ({
       image={videoElement}
       x={x}
       y={y}
-      width={videoWidth * scale}
-      height={videoHeight * scale}
+      width={videoWidth}
+      height={videoHeight}
+      scaleX={scale}
+      scaleY={scale}
       draggable={true}
       onDragEnd={onDragEnd}
     />

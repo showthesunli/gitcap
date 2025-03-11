@@ -41,7 +41,9 @@ export const recordCanvasToGif = (
   } = options;
 
   // 每帧之间的时间间隔(毫秒)
-  const frameDelay = 1000 / fps;
+  const frameDelayMs = 1000 / fps;
+  // 转换为1/100秒(厘秒)，GIF帧延迟的标准单位
+  const frameDelayCs = Math.round(frameDelayMs / 10);
 
   let framesProcessed = 0;
   let stopped = false;
@@ -91,12 +93,16 @@ export const recordCanvasToGif = (
       pixelRatio: 1, // 使用1:1的像素比以避免尺寸问题
     });
 
-    // 直接添加canvas到GIF
-    gif.addFrame(currentCanvas, { copy: true, delay: frameDelay });
+    // 添加帧到GIF，使用正确的延迟单位(1/100秒)
+    gif.addFrame(currentCanvas, { 
+      copy: true, 
+      delay: frameDelayCs // 使用1/100秒(厘秒)为单位，而不是毫秒
+    });
+    
     framesProcessed++;
-    console.log(`已捕获第${framesProcessed}帧`);
+    console.log(`已捕获第${framesProcessed}帧，延迟: ${frameDelayCs/100}秒`);
 
-  }, frameDelay);
+  }, frameDelayMs);
 
   return {
     // 停止录制并获取结果
@@ -119,7 +125,7 @@ export const recordCanvasToGif = (
       }
 
       isRendering = true;
-      console.log(`GIF录制完成，共捕获${framesProcessed}帧`);
+      console.log(`GIF录制完成，共捕获${framesProcessed}帧，帧率: ${fps}fps，帧延迟: ${frameDelayCs/100}秒`);
       gif.render();
       
       return resultPromise;

@@ -6,6 +6,8 @@
  * 未被直接使用，预留为未来优化方案。
  */
 
+import { GifRecordingController } from './types';
+
 // 此文件是未来改进的基础，包含Web Worker版本的GIF录制逻辑
 
 /**
@@ -17,6 +19,11 @@ type WorkerMessage = {
 };
 
 /**
+ * 声明Worker环境中可用的函数
+ */
+declare function importScripts(...urls: string[]): void;
+
+/**
  * Worker代码内容
  * 这里使用一个函数转字符串的方式，用于生成Worker blob
  */
@@ -25,7 +32,7 @@ const workerFunction = () => {
   let gif: any = null;
   let canvas: OffscreenCanvas | null = null;
   let ctx: OffscreenCanvasRenderingContext2D | null = null;
-  let captureInterval: number | null = null;
+  let captureInterval: ReturnType<typeof setInterval> | null = null;
   let framesProcessed = 0;
   let stopped = false;
   
@@ -37,6 +44,11 @@ const workerFunction = () => {
       case "init":
         // 初始化Worker
         canvas = e.data.canvas;
+        if (!canvas) {
+          self.postMessage({ type: "error", message: "Canvas为空" });
+          return;
+        }
+        
         ctx = canvas.getContext("2d");
         
         // 加载GIF.js库

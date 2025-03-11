@@ -30,7 +30,7 @@ export const recordCanvasToGif = (
   // 获取舞台宽高
   const stageWidth = stage.width();
   const stageHeight = stage.height();
-  
+
   const {
     fps = 10,
     quality = 10,
@@ -42,8 +42,6 @@ export const recordCanvasToGif = (
 
   // 每帧之间的时间间隔(毫秒)
   const frameDelayMs = 1000 / fps;
-  // 转换为1/100秒(厘秒)，GIF帧延迟的标准单位
-  const frameDelayCs = Math.round(frameDelayMs / 10);
 
   let framesProcessed = 0;
   let stopped = false;
@@ -51,7 +49,7 @@ export const recordCanvasToGif = (
   let resolvePromise: (blob: Blob) => void;
   let rejectPromise: (error: Error) => void;
   let captureInterval: ReturnType<typeof setInterval> | null = null;
-  
+
   // 添加时间追踪变量
   const startTime = Date.now();
   let lastCaptureTime = startTime;
@@ -94,30 +92,31 @@ export const recordCanvasToGif = (
     const currentTime = Date.now();
     const realFrameDelay = currentTime - lastCaptureTime;
     lastCaptureTime = currentTime;
-    
+
     // 累计实际录制时长
     totalRealDuration += realFrameDelay;
-    
+
     // 计算实际帧延迟（厘秒）
     const realFrameDelayCs = Math.round(realFrameDelay / 10);
 
     // 强制更新所有图层以确保最新的视频帧被渲染
-    stage.getLayers().forEach(layer => layer.batchDraw());
-    
+    stage.getLayers().forEach((layer) => layer.batchDraw());
+
     // 为当前帧创建新的canvas
     const currentCanvas = stage.toCanvas({
       pixelRatio: 1, // 使用1:1的像素比以避免尺寸问题
     });
 
     // 使用实际测量的帧延迟，而不是理论值
-    gif.addFrame(currentCanvas, { 
-      copy: true, 
-      delay: realFrameDelayCs > 1 ? realFrameDelayCs : 10 // 确保最小延迟为10厘秒
+    gif.addFrame(currentCanvas, {
+      copy: true,
+      delay: realFrameDelayCs > 1 ? realFrameDelayCs : 10, // 确保最小延迟为10厘秒
     });
-    
-    framesProcessed++;
-    console.log(`已捕获第${framesProcessed}帧，实际延迟: ${realFrameDelayCs/100}秒`);
 
+    framesProcessed++;
+    console.log(
+      `已捕获第${framesProcessed}帧，实际延迟: ${realFrameDelayCs / 100}秒`
+    );
   }, frameDelayMs);
 
   return {
@@ -145,9 +144,13 @@ export const recordCanvasToGif = (
       const avgFrameDelayCs = Math.round(avgFrameDelayMs / 10);
 
       isRendering = true;
-      console.log(`GIF录制完成，共捕获${framesProcessed}帧，总时长: ${totalRealDuration/1000}秒，平均帧延迟: ${avgFrameDelayCs/100}秒`);
+      console.log(
+        `GIF录制完成，共捕获${framesProcessed}帧，总时长: ${
+          totalRealDuration / 1000
+        }秒，平均帧延迟: ${avgFrameDelayCs / 100}秒`
+      );
       gif.render();
-      
+
       return resultPromise;
     },
 

@@ -51,6 +51,11 @@ export const recordCanvasToGif = (
   let resolvePromise: (blob: Blob) => void;
   let rejectPromise: (error: Error) => void;
   let captureInterval: ReturnType<typeof setInterval> | null = null;
+  
+  // 添加时间追踪变量
+  const startTime = Date.now();
+  let lastCaptureTime = startTime;
+  let totalRealDuration = 0;
 
   // 创建结果Promise
   const resultPromise = new Promise<Blob>((resolve, reject) => {
@@ -85,6 +90,17 @@ export const recordCanvasToGif = (
       return;
     }
 
+    // 计算实际经过的时间（毫秒）
+    const currentTime = Date.now();
+    const realFrameDelay = currentTime - lastCaptureTime;
+    lastCaptureTime = currentTime;
+    
+    // 累计实际录制时长
+    totalRealDuration += realFrameDelay;
+    
+    // 计算实际帧延迟（厘秒）
+    const realFrameDelayCs = Math.round(realFrameDelay / 10);
+
     // 强制更新所有图层以确保最新的视频帧被渲染
     stage.getLayers().forEach(layer => layer.batchDraw());
     
@@ -93,14 +109,14 @@ export const recordCanvasToGif = (
       pixelRatio: 1, // 使用1:1的像素比以避免尺寸问题
     });
 
-    // 添加帧到GIF，使用正确的延迟单位(1/100秒)
+    // 使用实际测量的帧延迟，而不是理论值
     gif.addFrame(currentCanvas, { 
       copy: true, 
-      delay: frameDelayCs // 使用1/100秒(厘秒)为单位，而不是毫秒
+      delay: realFrameDelayCs > 1 ? realFrameDelayCs : 10 // 确保最小延迟为10厘秒
     });
     
     framesProcessed++;
-    console.log(`已捕获第${framesProcessed}帧，延迟: ${frameDelayCs/100}秒`);
+    console.log(`已捕获第${framesProcessed}帧，实际延迟: ${realFrameDelayCs/100}秒`);
 
   }, frameDelayMs);
 
@@ -124,8 +140,12 @@ export const recordCanvasToGif = (
         return resultPromise;
       }
 
+      // 计算平均帧延迟
+      const avgFrameDelayMs = totalRealDuration / framesProcessed;
+      const avgFrameDelayCs = Math.round(avgFrameDelayMs / 10);
+
       isRendering = true;
-      console.log(`GIF录制完成，共捕获${framesProcessed}帧，帧率: ${fps}fps，帧延迟: ${frameDelayCs/100}秒`);
+      console.log(`GIF录制完成，共捕获${framesProcessed}帧，总时长: ${totalRealDuration/1000}秒，平均帧延迟: ${avgFrameDelayCs/100}秒`);
       gif.render();
       
       return resultPromise;

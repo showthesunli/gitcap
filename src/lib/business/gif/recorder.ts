@@ -10,7 +10,10 @@ import { GifRecordingController, RecordGifOptions } from "./types";
 declare global {
   interface Window {
     documentPictureInPicture?: {
-      requestWindow(options: { width: number; height: number }): Promise<Window>;
+      requestWindow(options: {
+        width: number;
+        height: number;
+      }): Promise<Window>;
     };
   }
 }
@@ -54,7 +57,7 @@ export const recordCanvasToGif = (
   const frameDelayMs = 1000 / fps;
 
   // 创建用于PiP的窗口元素
-  let pipWindow: Window | null = null;
+  let pipWindow: Window | undefined = undefined;
   let pipContainer: HTMLElement | null = null;
 
   let framesProcessed = 0;
@@ -99,7 +102,7 @@ export const recordCanvasToGif = (
 
   // 初始化PiP模式
   const initPictureInPicture = async () => {
-    if (!usePictureInPicture || !('documentPictureInPicture' in window)) {
+    if (!usePictureInPicture || !("documentPictureInPicture" in window)) {
       return false;
     }
 
@@ -107,11 +110,11 @@ export const recordCanvasToGif = (
       // 打开画中画窗口
       pipWindow = await window.documentPictureInPicture?.requestWindow({
         width: 320,
-        height: 240
+        height: 240,
       });
 
       if (!pipWindow) {
-        throw new Error('无法创建画中画窗口');
+        throw new Error("无法创建画中画窗口");
       }
 
       // 创建 PiP 窗口的基本 HTML 结构
@@ -142,17 +145,19 @@ export const recordCanvasToGif = (
       `;
 
       // 获取容器引用
-      pipContainer = pipWindow.document.getElementById('pip-container');
-      
+      pipContainer = pipWindow.document.getElementById("pip-container");
+
       // 设置初始图像
-      const pipImage = pipWindow.document.getElementById('pip-image') as HTMLImageElement;
+      const pipImage = pipWindow.document.getElementById(
+        "pip-image"
+      ) as HTMLImageElement;
       if (pipImage) {
         pipImage.src = stage.toDataURL();
       }
 
       // 监听 PiP 窗口关闭事件
-      pipWindow.addEventListener('pagehide', () => {
-        pipWindow = null;
+      pipWindow.addEventListener("pagehide", () => {
+        pipWindow = undefined;
         pipContainer = null;
       });
 
@@ -170,7 +175,7 @@ export const recordCanvasToGif = (
     try {
       if (pipWindow) {
         pipWindow.close();
-        pipWindow = null;
+        pipWindow = undefined;
         pipContainer = null;
       }
     } catch (error) {
@@ -185,13 +190,13 @@ export const recordCanvasToGif = (
     }
 
     const currentTime = Date.now();
-    
+
     // 检查是否已经到了捕获下一帧的时间
     if (currentTime >= nextFrameTime) {
       // 计算实际经过的时间（毫秒）
       const realFrameDelay = currentTime - lastCaptureTime;
       lastCaptureTime = currentTime;
-      
+
       // 设置下一帧的时间
       nextFrameTime = currentTime + frameDelayMs;
 
@@ -219,10 +224,12 @@ export const recordCanvasToGif = (
       console.log(
         `已捕获第${framesProcessed}帧，实际延迟: ${realFrameDelayCs / 100}秒`
       );
-      
+
       // 如果启用了PiP，更新PiP窗口内容
       if (pipWindow && pipContainer) {
-        const pipImage = pipWindow.document.getElementById('pip-image') as HTMLImageElement;
+        const pipImage = pipWindow.document.getElementById(
+          "pip-image"
+        ) as HTMLImageElement;
         if (pipImage) {
           pipImage.src = stage.toDataURL();
         }
@@ -239,7 +246,7 @@ export const recordCanvasToGif = (
     if (usePictureInPicture) {
       await initPictureInPicture();
     }
-    
+
     // 然后开始帧捕获
     animationFrameId = requestAnimationFrame(captureFrame);
   };
@@ -292,10 +299,10 @@ export const recordCanvasToGif = (
         cancelAnimationFrame(animationFrameId);
         animationFrameId = null;
       }
-      
+
       // 清理PiP资源
       await cleanupPictureInPicture();
-      
+
       rejectPromise(new Error("GIF录制已中止"));
     },
   };

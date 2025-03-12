@@ -21,6 +21,7 @@ export interface RecordGifOptions {
   showProgress?: boolean;
   /** 进度回调函数 */
   onProgress?: (progress: number) => void;
+  usePictureInPicture?: boolean;
 }
 
 /**

@@ -48,12 +48,13 @@ export const recordCanvasToGif = (
   let isRendering = false;
   let resolvePromise: (blob: Blob) => void;
   let rejectPromise: (error: Error) => void;
-  let captureInterval: ReturnType<typeof setInterval> | null = null;
+  let animationFrameId: number | null = null;
 
   // 添加时间追踪变量
   const startTime = Date.now();
   let lastCaptureTime = startTime;
   let totalRealDuration = 0;
+  let nextFrameTime = startTime;
 
   // 创建结果Promise
   const resultPromise = new Promise<Blob>((resolve, reject) => {
@@ -82,42 +83,55 @@ export const recordCanvasToGif = (
     });
   }
 
-  // 使用setInterval代替requestAnimationFrame，确保在浏览器后台时也能捕获帧
-  captureInterval = setInterval(() => {
+  // 使用requestAnimationFrame的帧捕获函数
+  const captureFrame = (timestamp: number) => {
     if (stopped || isRendering) {
       return;
     }
 
-    // 计算实际经过的时间（毫秒）
     const currentTime = Date.now();
-    const realFrameDelay = currentTime - lastCaptureTime;
-    lastCaptureTime = currentTime;
+    
+    // 检查是否已经到了捕获下一帧的时间
+    if (currentTime >= nextFrameTime) {
+      // 计算实际经过的时间（毫秒）
+      const realFrameDelay = currentTime - lastCaptureTime;
+      lastCaptureTime = currentTime;
+      
+      // 设置下一帧的时间
+      nextFrameTime = currentTime + frameDelayMs;
 
-    // 累计实际录制时长
-    totalRealDuration += realFrameDelay;
+      // 累计实际录制时长
+      totalRealDuration += realFrameDelay;
 
-    // 计算实际帧延迟（厘秒）
-    const realFrameDelayCs = Math.round(realFrameDelay / 10);
+      // 计算实际帧延迟（厘秒）
+      const realFrameDelayCs = Math.round(realFrameDelay / 10);
 
-    // 强制更新所有图层以确保最新的视频帧被渲染
-    stage.getLayers().forEach((layer) => layer.batchDraw());
+      // 强制更新所有图层以确保最新的视频帧被渲染
+      stage.getLayers().forEach((layer) => layer.batchDraw());
 
-    // 为当前帧创建新的canvas
-    const currentCanvas = stage.toCanvas({
-      pixelRatio: 1, // 使用1:1的像素比以避免尺寸问题
-    });
+      // 为当前帧创建新的canvas
+      const currentCanvas = stage.toCanvas({
+        pixelRatio: 1, // 使用1:1的像素比以避免尺寸问题
+      });
 
-    // 使用实际测量的帧延迟，而不是理论值
-    gif.addFrame(currentCanvas, {
-      copy: true,
-      delay: realFrameDelayCs > 1 ? realFrameDelayCs : 10, // 确保最小延迟为10厘秒
-    });
+      // 使用实际测量的帧延迟，而不是理论值
+      gif.addFrame(currentCanvas, {
+        copy: true,
+        delay: realFrameDelayCs > 1 ? realFrameDelayCs : 10, // 确保最小延迟为10厘秒
+      });
 
-    framesProcessed++;
-    console.log(
-      `已捕获第${framesProcessed}帧，实际延迟: ${realFrameDelayCs / 100}秒`
-    );
-  }, frameDelayMs);
+      framesProcessed++;
+      console.log(
+        `已捕获第${framesProcessed}帧，实际延迟: ${realFrameDelayCs / 100}秒`
+      );
+    }
+
+    // 请求下一帧
+    animationFrameId = requestAnimationFrame(captureFrame);
+  };
+
+  // 启动帧捕获
+  animationFrameId = requestAnimationFrame(captureFrame);
 
   return {
     // 停止录制并获取结果
@@ -128,9 +142,9 @@ export const recordCanvasToGif = (
 
       stopped = true;
 
-      if (captureInterval !== null) {
-        clearInterval(captureInterval);
-        captureInterval = null;
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
       }
 
       // 如果没有捕获任何帧，返回错误
@@ -157,9 +171,9 @@ export const recordCanvasToGif = (
     // 中止录制
     abort: () => {
       stopped = true;
-      if (captureInterval !== null) {
-        clearInterval(captureInterval);
-        captureInterval = null;
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
       }
       rejectPromise(new Error("GIF录制已中止"));
     },

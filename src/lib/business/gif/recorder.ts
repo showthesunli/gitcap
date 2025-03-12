@@ -59,6 +59,7 @@ export const recordCanvasToGif = (
   // 创建用于PiP的窗口元素
   let pipWindow: Window | undefined = undefined;
   let pipContainer: HTMLElement | null = null;
+  let pipEnabled = false; // 新增：跟踪PiP是否已启用
 
   let framesProcessed = 0;
   let stopped = false;
@@ -102,7 +103,7 @@ export const recordCanvasToGif = (
 
   // 初始化PiP模式
   const initPictureInPicture = async () => {
-    if (!usePictureInPicture || !("documentPictureInPicture" in window)) {
+    if (!usePictureInPicture || !("documentPictureInPicture" in window) || pipWindow) {
       return false;
     }
 
@@ -161,6 +162,8 @@ export const recordCanvasToGif = (
         pipContainer = null;
       });
 
+      // 标记PiP已启用
+      pipEnabled = true;
       console.log("已启用画中画模式，录制将在后台继续进行");
       return true;
     } catch (error) {
@@ -172,14 +175,30 @@ export const recordCanvasToGif = (
 
   // 清理PiP资源
   const cleanupPictureInPicture = async () => {
+    if (!pipWindow) return;
+    
     try {
-      if (pipWindow) {
-        pipWindow.close();
-        pipWindow = undefined;
-        pipContainer = null;
-      }
+      pipWindow.close();
+      pipWindow = undefined;
+      pipContainer = null;
+      pipEnabled = false;
     } catch (error) {
       console.error("清理画中画资源时出错:", error);
+    }
+  };
+
+  // 新增：页面可见性变化处理函数
+  const handleVisibilityChange = async () => {
+    if (document.visibilityState === 'hidden') {
+      // 页面不可见时启用PiP
+      if (!pipEnabled && usePictureInPicture && !stopped) {
+        await initPictureInPicture();
+      }
+    } else if (document.visibilityState === 'visible') {
+      // 页面可见时关闭PiP
+      if (pipEnabled) {
+        await cleanupPictureInPicture();
+      }
     }
   };
 
@@ -242,12 +261,12 @@ export const recordCanvasToGif = (
 
   // 启动录制流程
   const startRecording = async () => {
-    // 先尝试初始化PiP模式
+    // 不再在启动时立即初始化PiP，而是添加事件监听器
     if (usePictureInPicture) {
-      await initPictureInPicture();
+      document.addEventListener('visibilitychange', handleVisibilityChange);
     }
-
-    // 然后开始帧捕获
+    
+    // 开始帧捕获
     animationFrameId = requestAnimationFrame(captureFrame);
   };
 
@@ -267,6 +286,9 @@ export const recordCanvasToGif = (
         cancelAnimationFrame(animationFrameId);
         animationFrameId = null;
       }
+
+      // 移除事件监听器
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
 
       // 清理PiP模式资源
       await cleanupPictureInPicture();
@@ -299,6 +321,9 @@ export const recordCanvasToGif = (
         cancelAnimationFrame(animationFrameId);
         animationFrameId = null;
       }
+
+      // 移除事件监听器
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
 
       // 清理PiP资源
       await cleanupPictureInPicture();

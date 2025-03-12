@@ -6,6 +6,15 @@ import GIF from "gif.js";
 import Konva from "konva";
 import { GifRecordingController, RecordGifOptions } from "./types";
 
+// 画中画窗口类型声明
+declare global {
+  interface Window {
+    documentPictureInPicture?: {
+      requestWindow(options: { width: number; height: number }): Promise<Window>;
+    };
+  }
+}
+
 /**
  * 将Konva舞台内容录制为GIF
  * @remarks 使用gif.js库捕获Konva舞台内容并生成GIF动画
@@ -44,10 +53,9 @@ export const recordCanvasToGif = (
   // 每帧之间的时间间隔(毫秒)
   const frameDelayMs = 1000 / fps;
 
-  // 创建用于PiP的视频元素
-  let pipVideo: HTMLVideoElement | null = null;
-  let pipCanvas: HTMLCanvasElement | null = null;
-  let pipStream: MediaStream | null = null;
+  // 创建用于PiP的窗口元素
+  let pipWindow: Window | null = null;
+  let pipContainer: HTMLElement | null = null;
 
   let framesProcessed = 0;
   let stopped = false;
@@ -91,51 +99,63 @@ export const recordCanvasToGif = (
 
   // 初始化PiP模式
   const initPictureInPicture = async () => {
-    if (!usePictureInPicture || !document.pictureInPictureEnabled) {
+    if (!usePictureInPicture || !('documentPictureInPicture' in window)) {
       return false;
     }
 
     try {
-      // 创建画布和视频元素
-      pipCanvas = document.createElement('canvas');
-      pipCanvas.width = 320; // 小尺寸足够保持PiP窗口小巧
-      pipCanvas.height = 240;
-      
-      // 绘制舞台内容到画布，确保PiP有内容显示
-      const ctx = pipCanvas.getContext('2d');
-      if (ctx) {
-        const miniStage = stage.clone();
-        miniStage.width(pipCanvas.width);
-        miniStage.height(pipCanvas.height);
-        miniStage.scale({ x: pipCanvas.width / stageWidth, y: pipCanvas.height / stageHeight });
-        miniStage.draw();
-        const dataUrl = miniStage.toDataURL();
-        const img = new Image();
-        img.onload = () => ctx.drawImage(img, 0, 0);
-        img.src = dataUrl;
+      // 打开画中画窗口
+      pipWindow = await window.documentPictureInPicture?.requestWindow({
+        width: 320,
+        height: 240
+      });
+
+      if (!pipWindow) {
+        throw new Error('无法创建画中画窗口');
       }
 
-      // 从画布创建媒体流
-      pipStream = pipCanvas.captureStream(fps);
-      
-      // 创建播放这个流的视频元素
-      pipVideo = document.createElement('video');
-      pipVideo.srcObject = pipStream;
-      pipVideo.muted = true; // 静音
-      pipVideo.style.position = 'fixed';
-      pipVideo.style.opacity = '0.01'; // 几乎不可见
-      pipVideo.style.pointerEvents = 'none';
-      pipVideo.style.width = '1px';
-      pipVideo.style.height = '1px';
-      pipVideo.style.zIndex = '-1';
+      // 创建 PiP 窗口的基本 HTML 结构
+      pipWindow.document.body.innerHTML = `
+        <style>
+          body { 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            background: #000;
+          }
+          #pip-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          #pip-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+          }
+        </style>
+        <div id="pip-container">
+          <img id="pip-image" alt="录制预览" />
+        </div>
+      `;
 
-      // 添加到DOM并开始播放
-      document.body.appendChild(pipVideo);
-      await pipVideo.play();
+      // 获取容器引用
+      pipContainer = pipWindow.document.getElementById('pip-container');
       
-      // 进入画中画模式
-      await pipVideo.requestPictureInPicture();
-      
+      // 设置初始图像
+      const pipImage = pipWindow.document.getElementById('pip-image') as HTMLImageElement;
+      if (pipImage) {
+        pipImage.src = stage.toDataURL();
+      }
+
+      // 监听 PiP 窗口关闭事件
+      pipWindow.addEventListener('pagehide', () => {
+        pipWindow = null;
+        pipContainer = null;
+      });
+
       console.log("已启用画中画模式，录制将在后台继续进行");
       return true;
     } catch (error) {
@@ -148,21 +168,11 @@ export const recordCanvasToGif = (
   // 清理PiP资源
   const cleanupPictureInPicture = async () => {
     try {
-      if (document.pictureInPictureElement === pipVideo) {
-        await document.exitPictureInPicture();
+      if (pipWindow) {
+        pipWindow.close();
+        pipWindow = null;
+        pipContainer = null;
       }
-      
-      if (pipStream) {
-        pipStream.getTracks().forEach(track => track.stop());
-        pipStream = null;
-      }
-      
-      if (pipVideo) {
-        pipVideo.remove();
-        pipVideo = null;
-      }
-      
-      pipCanvas = null;
     } catch (error) {
       console.error("清理画中画资源时出错:", error);
     }
@@ -210,16 +220,11 @@ export const recordCanvasToGif = (
         `已捕获第${framesProcessed}帧，实际延迟: ${realFrameDelayCs / 100}秒`
       );
       
-      // 如果启用了PiP，更新PiP画布内容
-      if (pipCanvas && pipCanvas.getContext('2d')) {
-        const ctx = pipCanvas.getContext('2d');
-        if (ctx) {
-          ctx.clearRect(0, 0, pipCanvas.width, pipCanvas.height);
-          ctx.drawImage(
-            currentCanvas, 
-            0, 0, currentCanvas.width, currentCanvas.height,
-            0, 0, pipCanvas.width, pipCanvas.height
-          );
+      // 如果启用了PiP，更新PiP窗口内容
+      if (pipWindow && pipContainer) {
+        const pipImage = pipWindow.document.getElementById('pip-image') as HTMLImageElement;
+        if (pipImage) {
+          pipImage.src = stage.toDataURL();
         }
       }
     }

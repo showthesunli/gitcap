@@ -184,7 +184,7 @@ export const recordCanvasToGif = (
   };
 
   // 使用requestAnimationFrame的帧捕获函数
-  const captureFrame = (timestamp: number) => {
+  const captureFrame = () => {
     if (stopped || isRendering) {
       return;
     }
